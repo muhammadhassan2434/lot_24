@@ -6,7 +6,7 @@
             <h1>Categories</h1>
         </div>
         <div class="col-auto">
-            <a class="btn btn-primary mt-2" href="{{ route('category.create')}}">Add  Category</a>
+            <a class="btn btn-primary mt-2" href="{{ route('category.create')}}">Add New Category</a>
         </div>
     </div>
 
