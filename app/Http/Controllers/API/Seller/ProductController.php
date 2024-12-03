@@ -23,7 +23,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('images', 'category')->get();
+        $products = Product::with('category')->get();
 
         if($products->isEmpty()) {
             return response()->json([
