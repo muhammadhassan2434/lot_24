@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\SubCategory;
+use App\Models\Subcategory;
 use App\Models\ProductImage;
 use App\Models\Country;
 use App\Models\Product;
@@ -262,7 +262,7 @@ class ProductController extends Controller
     }
     public function subcategory()
     {
-        $subcategories = subcategory::select('id', 'name', 'category_id')->with(['category:id,name'])->where('status', 'active')->get();
+        $subcategories = Subcategory::select('id', 'name', 'category_id')->with(['category:id,name'])->where('status', 'active')->get();
         return response()->json([
             'status' => 'success',
             'data' => $subcategories
