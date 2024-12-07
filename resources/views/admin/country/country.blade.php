@@ -21,7 +21,7 @@
 
 
     <!-- Categories List -->
-    <table class="table table-bordered">
+    <table class="table table-bordered overflow-scroll ">
         <thead>
             <tr>
                 <th>ID</th>
@@ -50,7 +50,7 @@
                     <td>{{ $country->status }}</td>
 
                     <td>
-                        <a href="{{ route('country.edit', $country->id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                        <a href="{{ route('country.edit', $country->id) }}" class="btn btn-secondary btn-sm m-2">Edit</a>
                         <form action="{{ route('country.destroy', $country->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')

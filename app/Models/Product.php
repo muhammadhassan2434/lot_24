@@ -25,10 +25,10 @@ class Product extends Model
         'delivery_option',
     ];
 
-    // public function images()
-    // {
-    //     return $this->hasMany(ProductImage::class);
-    // }
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
     public function category()
 {
     return $this->belongsTo(Category::class);

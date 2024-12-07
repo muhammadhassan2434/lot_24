@@ -25,9 +25,9 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Image</th>
                 <th>Category Name</th>
                 <th>Slug</th>
-                <th>Image</th>
                 <th>Status</th>
                 <th>Actions</th>
             </tr>
@@ -36,13 +36,13 @@
             @foreach($categories as $category)
                 <tr>
                     <td>{{ $category->id }}</td>
-                    <td>{{ $category->name }}</td>
-                    <td>{{ $category->slug }}</td>
                     <td> @if($category->image)
                         <img src="{{ asset('uploads/' . $category->image) }}" alt="{{ $category->name }}" width="100" height="70">
                     @else
                         No Image
                     @endif</td>
+                    <td>{{ $category->name }}</td>
+                    <td>{{ $category->slug }}</td>
                     <td>{{ $category->status }}</td>
 
                     <td>

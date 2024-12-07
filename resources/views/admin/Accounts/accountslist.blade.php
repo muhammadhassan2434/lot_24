@@ -3,11 +3,11 @@
 <div class="container">
     <div class="row justify-content-between align-items-center">
         <div class="col-auto">
-            <h1>Sub_Categories</h1>
+            <h1>Buyer's/Seller's</h1>
         </div>
-        <div class="col-auto">
-            <a class="btn btn-primary mt-2" href="{{ route('subcategory.create')}}">Add New Sub_Category</a>
-        </div>
+        {{-- <div class="col-auto">
+            <a class="btn btn-primary mt-2" href="{{ route('subscription.create')}}">Add New Subscriptions</a>
+        </div> --}}
     </div>
 
     <!-- Success Message -->
@@ -25,25 +25,28 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Role</th>
                 <th>Name</th>
-                <th>Category</th>
-                <th>Slug</th>
-                <th>Status</th>
+                <th>Surname</th>
+                <th>Email</th>
+                <th>Phone No</th>
+                <th>Country</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($subcategories as $subcategory)
+            @foreach($accounts as $account)
                 <tr>
-                    <td>{{ $subcategory->id }}</td>
-                    <td>{{ $subcategory->name }}</td>
-                    <td>{{ $subcategory->category->name }}</td>
-                    <td>{{ $subcategory->slug }}</td>
-                    <td>{{ $subcategory->status }}</td>
-
+                    <td>{{ $account->id }}</td>
+                    <td>{{ $account->role }}</td>
+                    <td>{{ $account->name }}</td>
+                    <td>{{ $account->surname }}</td>
+                    <td>{{ $account->email }}</td>
+                    <td>{{ $account->phone_number }}</td>
+                    <td>{{ $account->country }}</td>
                     <td>
-                        <a href="{{ route('subcategory.edit', $subcategory->id) }}" class="btn btn-secondary btn-sm">Edit</a>
-                        <form action="{{ route('subcategory.destroy', $subcategory->id) }}" method="POST" style="display:inline;">
+                        <a href="{{ route('account.edit', $account->id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                        <form action="{{ route('accounts.destroy', $account->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>

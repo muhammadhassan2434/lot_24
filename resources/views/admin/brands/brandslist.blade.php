@@ -21,7 +21,7 @@
 
 
     <!-- Categories List -->
-    <table class="table table-bordered">
+    <table class="table table-bordered overflow-scroll">
         <thead>
             <tr>
                 <th>ID</th>

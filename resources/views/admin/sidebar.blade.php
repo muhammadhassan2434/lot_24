@@ -50,6 +50,24 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('subscription.index')}}" class="waves-effect">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <span> Subcriptions</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.showproducts')}}" class="waves-effect">
+                        <i class="fa-brands fa-product-hunt"></i>
+                        <span> Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('account.index')}}" class="waves-effect">
+                        <i class="fa-brands fa-product-hunt"></i>
+                        <span>Buyer's/Seller's</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('user.index')}}" class="waves-effect">
                         <i class="fa-solid fa-user"></i>
                         <span> Users</span>

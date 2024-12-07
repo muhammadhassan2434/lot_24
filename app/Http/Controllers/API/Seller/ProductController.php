@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\Subcategory;
+use App\Models\SubCategory;
 use App\Models\ProductImage;
 use App\Models\Country;
 use App\Models\Product;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str; 
+use Illuminate\Support\Str;
 
 
 class ProductController extends Controller
@@ -23,9 +23,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('category')->get();
+        $products = Product::with('images', 'category')->get();
 
-        if($products->isEmpty()) {
+        if ($products->isEmpty()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'No products found.',
@@ -40,16 +40,14 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        
         // Validate the request
         $validated = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -68,10 +66,13 @@ class ProductController extends Controller
             'tags' => 'nullable|string',
             'payment_option' => 'nullable|string',
             'delivery_option' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
+            // Validate multiple images
+            'image' => 'nullable|array', // Image must be an array
+            'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Each image must meet these requirements
         ]);
     
         if ($validated->fails()) {
+            
             return response()->json([
                 'status' => false,
                 'message' => 'Validation Error',
@@ -99,48 +100,50 @@ class ProductController extends Controller
             'delivery_option' => $request->delivery_option,
         ]);
     
-        $imageUrl = null;
+        $imageUrls = []; // To store URLs of uploaded images
     
-        // Handle single image upload
+        // Handle multiple image uploads
         if ($product && $request->hasFile('image')) {
             try {
-                $image = $request->file('image');
-                Log::info('Image detected: ' . $image->getClientOriginalName());
-        
-                $fileName = time() . '_' . $image->getClientOriginalName();
-                Log::info('Generated file name: ' . $fileName);
-        
-                $image->move(public_path('uploads/product'), $fileName);
-                Log::info('Image moved to: ' . public_path('uploads/product') . '/' . $fileName);
-        
-                $imageUrl = url('uploads/product/' . $fileName);
-        
-                // Save image in the database
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image' => 'uploads/product/' . $fileName,
-                ]);
-        
-                Log::info('Image saved to database: ' . $imageUrl);
+                foreach ($request->file('image') as $image) {
+                    Log::info('Processing image: ' . $image->getClientOriginalName());
+    
+                    $fileName = time() . '_' . $image->getClientOriginalName();
+                    Log::info('Generated file name: ' . $fileName);
+    
+                    $image->move(public_path('uploads/Products'), $fileName);
+                    Log::info('Image moved to: ' . public_path('uploads/Products') . '/' . $fileName);
+    
+                    $imagePath = 'uploads/Products/' . $fileName;
+                    $imageUrl = url($imagePath);
+                    $imageUrls[] = $imageUrl;
+    
+                    // Save image in the database
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image' => $imagePath,
+                    ]);
+    
+                    Log::info('Image saved to database: ' . $imageUrl);
+                }
+                
             } catch (\Exception $e) {
                 Log::error('Image upload error: ' . $e->getMessage());
                 return response()->json([
                     'status' => false,
                     'message' => 'Image upload failed',
                     'error' => $e->getMessage(), // Include the actual error message in response
-                ], 500);
+                ], 400);
             }
         }
-        
     
         return response()->json([
             'status' => true,
             'message' => 'Product created successfully',
             'product' => $product,
-            'image_url' => $imageUrl, // Return image URL in response
+            'image_urls' => $imageUrls, // Return image URLs in response
         ], 201);
     }
-
 
 
 
@@ -151,15 +154,36 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $product = Product::with('images','category')->find($id);
+
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Product retrieved successfully',
+            'product' => $product,
+        ], 200);
+
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function editProduct($id)
     {
-        $product = Product::with('images')->where('id', $id)->first();
+        // return response()->json([
+        //     'status' => 'success',
+        //     'data' => $id,
+        // ], 200);
+
+        
+        
+        $product = Product::with('images')->find($id);
 
         if (!$product) {
             return response()->json([
@@ -179,76 +203,139 @@ class ProductController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        // Validate the incoming request
-        $validated = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'category_id' => 'required|exists:categories,id',
-            'regular_price' => 'required|numeric',
-            'sale_price' => 'nullable|numeric',
-            'wholesale_price' => 'nullable|numeric',
-            'badges' => 'nullable|string',
-            'minimal_order' => 'required|integer|min:1',
-            'product_stock' => 'required|integer|min:0',
-            'stock_status' => 'required|in:in_stock,out_of_stock,pre_order',
-            'sku' => 'nullable|string|max:255',
-            'ean' => 'nullable|string|max:255',
-            'country_id' => 'nullable|exists:countries,id',
-            'tags' => 'nullable|string',
-            'payment_option' => 'nullable|string',
-            'delivery_option' => 'nullable|string',
-        ]);
+{
+    // Find the product by ID
+    $product = Product::find($id);
 
-        if ($validated->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validator Error',
-                'error' => $validated->errors()
-            ], 400);
-        }
-
-        // Fetch the product details
-        
-
-        // Handle image upload
-
-
-        // Update product details
-        $product = Product::where('id', $id)->update([
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'category_id' => $request->input('category_id'),
-            'regular_price' => $request->input('regular_price'),
-            'sale_price' => $request->input('sale_price'),
-            'wholesale_price' => $request->input('wholesale_price'),
-            'badges' => $request->input('badges'),
-            'minimal_order' => $request->input('minimal_order'),
-            'product_stock' => $request->input('product_stock'),
-            'stock_status' => $request->input('stock_status'),
-            'sku' => $request->input('sku'),
-            'ean' => $request->input('ean'),
-            'country_id' => $request->input('country_id'),
-            'tags' => $request->input('tags'),
-            'payment_option' => $request->input('payment_option'),
-            'delivery_option' => $request->input('delivery_option'),
-        ]);
-
+    if (!$product) {
         return response()->json([
-            'status' => 'success',
-            'message' => 'Product updated successfully.',
-            'data' => $product,
-        ], 200);
+            'status' => false,
+            'message' => 'Product not found',
+        ], 404);
     }
 
+    // Validate the incoming request
+    $validated = Validator::make($request->all(), [
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'category_id' => 'required|exists:categories,id',
+        'regular_price' => 'required|numeric',
+        'sale_price' => 'nullable|numeric',
+        'wholesale_price' => 'nullable|numeric',
+        'badges' => 'nullable|string',
+        'minimal_order' => 'required|integer|min:1',
+        'product_stock' => 'required|integer|min:0',
+        'stock_status' => 'required|in:in_stock,out_of_stock,pre_order',
+        'sku' => 'nullable|string|max:255',
+        'ean' => 'nullable|string|max:255',
+        'country_id' => 'nullable|exists:countries,id',
+        'tags' => 'nullable|string',
+        'payment_option' => 'nullable|string',
+        'delivery_option' => 'nullable|string',
+        'image' => 'nullable|array', // Validate multiple images
+        'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    ]);
+
+    if ($validated->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation Error',
+            'error' => $validated->errors(),
+        ], 400);
+    }
+
+    // Update product details
+    $product->update([
+        'title' => $request->input('title'),
+        'description' => $request->input('description'),
+        'category_id' => $request->input('category_id'),
+        'regular_price' => $request->input('regular_price'),
+        'sale_price' => $request->input('sale_price'),
+        'wholesale_price' => $request->input('wholesale_price'),
+        'badges' => $request->input('badges'),
+        'minimal_order' => $request->input('minimal_order'),
+        'product_stock' => $request->input('product_stock'),
+        'stock_status' => $request->input('stock_status'),
+        'sku' => $request->input('sku'),
+        'ean' => $request->input('ean'),
+        'country_id' => $request->input('country_id'),
+        'tags' => $request->input('tags'),
+        'payment_option' => $request->input('payment_option'),
+        'delivery_option' => $request->input('delivery_option'),
+    ]);
+    
+    if ($request->hasFile('image')) {
+        $oldImages = $product->images; // Assuming `images()` relationship exists
+        foreach ($oldImages as $oldImage) {
+            $oldImagePath = public_path($oldImage->image); // Get full file path
+            if (file_exists($oldImagePath)) {
+                Log::info("Deleting file: " . $oldImagePath);
+                unlink($oldImagePath); // Delete the file
+            } else {
+                Log::warning("File not found: " . $oldImagePath);
+            }
+            $oldImage->delete(); // Delete the database record
+        }
+    
+        foreach ($request->file('image') as $image) {
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/Products/'), $fileName);
+    
+            $imagePath = 'uploads/Products/' . $fileName;
+    
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image' => $imagePath,
+            ]);
+        }
+    }
+    
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Product updated successfully.',
+        'data' => $product,
+    ], 200);
+}
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $product = Product::with('images')->find($id);
+
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product not found',
+            ], 404);
+        }
+
+        // Delete the associated images from the database and the folder
+        foreach ($product->images as $image) {
+            // Delete the image file from the storage folder
+            $imagePath = public_path($image->image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);  // Delete the image file from the folder
+                Log::info('Image deleted from folder: ' . $imagePath);
+            }
+
+            // Delete the image record from the ProductImage table
+            $image->delete();
+            Log::info('Image deleted from database: ' . $image->image);
+        }
+
+        // Delete the product record from the database
+        $product->delete();
+        Log::info('Product deleted from database: ' . $product->id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Product and associated images deleted successfully',
+        ], 200);
     }
+
 
     public function category()
     {
@@ -262,7 +349,7 @@ class ProductController extends Controller
     }
     public function subcategory()
     {
-        $subcategories = Subcategory::select('id', 'name', 'category_id')->with(['category:id,name'])->where('status', 'active')->get();
+        $subcategories = SubCategory::select('id', 'name', 'category_id')->with(['category:id,name'])->where('status', 'active')->get();
         return response()->json([
             'status' => 'success',
             'data' => $subcategories
@@ -283,6 +370,49 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $countries
+        ]);
+    }
+    public function showproducts()
+    {
+        $products = Product::with('images', 'category')->get();
+        return view('admin.product.productlist', compact('products'));
+    }
+    public function updateDisplayTag(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:products,id',
+            'displaytag' => 'nullable',
+        ]);
+
+        $product = Product::find($request->id);
+        $product->displaytag = $request->displaytag;
+        $product->save();
+
+        return redirect()->route('admin.showproducts')->with('sucess', "Product Updated SuccessFully");
+    }
+
+    public function showweekofferproduct()
+    {
+        $weekofferproduct = Product::with('images')->where('displaytag', 'Week best offers')->get();
+        return response()->json([
+            'status' => 'success',
+            'data' => $weekofferproduct
+        ]);
+    }
+    public function showrecentlyaddedproduct()
+    {
+        $recentlyaddedproduct = Product::with('images')->where('displaytag', 'Recently added')->get();
+        return response()->json([
+            'status' => 'success',
+            'data' => $recentlyaddedproduct
+        ]);
+    }
+    public function showmostpopularproduct()
+    {
+        $mostpopularproduct = Product::with('images')->where('displaytag', 'Most popular offers')->get();
+        return response()->json([
+            'status' => 'success',
+            'data' => $mostpopularproduct
         ]);
     }
 }

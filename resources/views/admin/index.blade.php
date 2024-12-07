@@ -23,9 +23,9 @@
                 </div>
                 <div class="col-md-3 p-2">
                     <div class="card bg-primary text-light p-4">
-                        <h5>Total Countries</h5>
+                        <h5>Total Buyer</h5>
                         <h6></h6>
-                        <h6>{{ $totalCountries}}</h6>
+                        <h6>{{ $totalBuyer}}</h6>
                     </div>
                 </div>
                 <div class="col-md-3 p-2">

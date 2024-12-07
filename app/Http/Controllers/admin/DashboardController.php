@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Account;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Country;
@@ -16,11 +17,11 @@ class DashboardController extends Controller
 {
     // Fetch counts
     $totalUsers = User::count(); // Total users
-    $totalSellers = User::where('role', 'seller')->count(); // Total sellers
-    $totalCountries = Country::count(); // Total countries
+    $totalSellers = Account::where('role', 'seller')->count(); // Total sellers
+    $totalBuyer = Account::where('role', 'buyer')->count(); // Total countries
     $totalBrands = Brand::count(); // Total brands
 
     // Pass the data to the view
-    return view('admin.index', compact('totalUsers', 'totalSellers', 'totalCountries','totalBrands'));
+    return view('admin.index', compact('totalUsers', 'totalSellers', 'totalBuyer','totalBrands'));
 }
 }
