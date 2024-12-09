@@ -15,7 +15,7 @@ Route::post('login',[AuthController::class,'login'])->name('api.login');
 Route::post('logout',[AuthController::class,'logout'])->middleware('auth:sanctum');
 
 Route::get('/category', [ProductController::class, 'category']);
-Route::get('/subcategory', [ProductController::class, 'subcategory']);
+Route::get('/subcategory/{id}', [ProductController::class, 'subcategory']);
 Route::get('/brand', [ProductController::class, 'brand']);
 Route::get('/country', [ProductController::class, 'country']);
 

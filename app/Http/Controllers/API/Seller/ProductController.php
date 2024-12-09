@@ -347,9 +347,9 @@ class ProductController extends Controller
             ]
         );
     }
-    public function subcategory()
+    public function subcategory($id)
     {
-        $subcategories = SubCategory::select('id', 'name', 'category_id')->with(['category:id,name'])->where('status', 'active')->get();
+        $subcategories = SubCategory::select('id', 'name', 'category_id')->with(['category:id,name'])->where('category_id',$id)->where('status', 'active')->get();
         return response()->json([
             'status' => 'success',
             'data' => $subcategories
