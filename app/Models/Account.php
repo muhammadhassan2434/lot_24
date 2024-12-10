@@ -3,10 +3,11 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
 
 class Account extends Model
 {
-    use HasFactory;
+    use HasFactory , HasApiTokens;
     protected $table = 'accounts';
 
     // Fields that can be mass-assigned

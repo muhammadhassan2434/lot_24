@@ -8,6 +8,8 @@ use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
 
 class AccountsController extends Controller
 {
@@ -130,7 +132,7 @@ class AccountsController extends Controller
             'name' => $request->name,
             'surname' => $request->surname,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'password' => Hash::make($request->password),
             'phone_number' => $request->phone_number,
             'country' => $request->country,
             'role' => $request->role,
@@ -154,4 +156,41 @@ class AccountsController extends Controller
             // Return image URL in response
         ], 201);
     }
+
+
+
+    
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Failed',
+                'error' => $validator->errors()->all()
+            ], 422);
+        }
+    
+       $account = Account::where('email', $request->email)->first();
+    
+        if (!$account || !Hash::check($request->password, $account->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+    
+        return response()->json([
+            'status' => true,
+            'message' => 'Login successful',
+            'account' => $account,
+            'token' => $account->createToken('API Token')->plainTextToken
+        ], 200);
+    }
+    
+
 }
