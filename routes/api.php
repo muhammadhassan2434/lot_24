@@ -26,6 +26,7 @@ Route::get('/get-product',[ProductController::class,'index']);
 Route::post('/store-product',[ProductController::class,'store']);
 Route::get('/edit-product/{id}',[ProductController::class,'editProduct']);
 Route::post('/update-product/{id}',[ProductController::class,'update']);
+Route::get('/get-product/detail/{id}',[ProductController::class,'show']);
 // Route::get('/get-product',[ProductController::class,'index']);
 
 Route::delete('/delete-product/{id}',[ProductController::class,'destroy']);
@@ -44,3 +45,4 @@ Route::resource('/accounts',AccountsController::class);
 Route::post('/store-account',[AccountsController::class,'storeAccounts']);
 
 Route::post('/account-login',[AccountsController::class,'login']);
+

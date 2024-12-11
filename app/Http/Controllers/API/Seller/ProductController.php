@@ -23,7 +23,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('images', 'category')->get();
+        $products = Product::with('images', 'category','country','brand')->get();
 
         if ($products->isEmpty()) {
             return response()->json([
@@ -47,7 +47,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         // Validate the request
         $validated = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -66,20 +66,21 @@ class ProductController extends Controller
             'tags' => 'nullable|string',
             'payment_option' => 'nullable|string',
             'delivery_option' => 'nullable|string',
+            'brand_id' => 'nullable|exists:brands,id',
             // Validate multiple images
             'image' => 'nullable|array', // Image must be an array
             'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Each image must meet these requirements
         ]);
-    
+
         if ($validated->fails()) {
-            
+
             return response()->json([
                 'status' => false,
                 'message' => 'Validation Error',
                 'error' => $validated->errors(),
             ], 400);
         }
-    
+
         // Create the product
         $product = Product::create([
             'title' => $request->title,
@@ -98,35 +99,36 @@ class ProductController extends Controller
             'tags' => $request->tags,
             'payment_option' => $request->payment_option,
             'delivery_option' => $request->delivery_option,
+            'brand_id'=>$request->brand_id,
         ]);
-    
+
         $imageUrls = []; // To store URLs of uploaded images
-    
+
         // Handle multiple image uploads
         if ($product && $request->hasFile('image')) {
             try {
                 foreach ($request->file('image') as $image) {
                     Log::info('Processing image: ' . $image->getClientOriginalName());
-    
+
                     $fileName = time() . '_' . $image->getClientOriginalName();
                     Log::info('Generated file name: ' . $fileName);
-    
+
                     $image->move(public_path('uploads/Products'), $fileName);
                     Log::info('Image moved to: ' . public_path('uploads/Products') . '/' . $fileName);
-    
+
                     $imagePath = 'uploads/Products/' . $fileName;
                     $imageUrl = url($imagePath);
                     $imageUrls[] = $imageUrl;
-    
+
                     // Save image in the database
                     ProductImage::create([
                         'product_id' => $product->id,
                         'image' => $imagePath,
                     ]);
-    
+
                     Log::info('Image saved to database: ' . $imageUrl);
                 }
-                
+
             } catch (\Exception $e) {
                 Log::error('Image upload error: ' . $e->getMessage());
                 return response()->json([
@@ -136,7 +138,7 @@ class ProductController extends Controller
                 ], 400);
             }
         }
-    
+
         return response()->json([
             'status' => true,
             'message' => 'Product created successfully',
@@ -154,7 +156,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with('images','category')->find($id);
+        $product = Product::with('images','category:id,name','country:id,name','brand:id,name')->find($id);
 
         if (!$product) {
             return response()->json([
@@ -163,10 +165,12 @@ class ProductController extends Controller
             ], 404);
         }
 
+
         return response()->json([
             'status' => true,
             'message' => 'Product retrieved successfully',
             'product' => $product,
+
         ], 200);
 
     }
@@ -181,8 +185,8 @@ class ProductController extends Controller
         //     'data' => $id,
         // ], 200);
 
-        
-        
+
+
         $product = Product::with('images')->find($id);
 
         if (!$product) {
@@ -232,6 +236,7 @@ class ProductController extends Controller
         'tags' => 'nullable|string',
         'payment_option' => 'nullable|string',
         'delivery_option' => 'nullable|string',
+        'brand_id' => 'nullable|exists:brands,id',
         'image' => 'nullable|array', // Validate multiple images
         'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
@@ -262,8 +267,9 @@ class ProductController extends Controller
         'tags' => $request->input('tags'),
         'payment_option' => $request->input('payment_option'),
         'delivery_option' => $request->input('delivery_option'),
+        'brand_id' => $request->input('brand_id'),
     ]);
-    
+
     if ($request->hasFile('image')) {
         $oldImages = $product->images; // Assuming `images()` relationship exists
         foreach ($oldImages as $oldImage) {
@@ -276,20 +282,20 @@ class ProductController extends Controller
             }
             $oldImage->delete(); // Delete the database record
         }
-    
+
         foreach ($request->file('image') as $image) {
             $fileName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('uploads/Products/'), $fileName);
-    
+
             $imagePath = 'uploads/Products/' . $fileName;
-    
+
             ProductImage::create([
                 'product_id' => $product->id,
                 'image' => $imagePath,
             ]);
         }
     }
-    
+
 
     return response()->json([
         'status' => true,
