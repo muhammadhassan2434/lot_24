@@ -200,7 +200,7 @@ class AccountsController extends Controller
         'token' => $account->createToken('API Token')->plainTextToken
     ], 200);
 }
-    public function sellerLogin(Request $request)
+public function sellerLogin(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'email' => 'required|email',
@@ -225,7 +225,7 @@ class AccountsController extends Controller
         ], 401);
     }
 
-    // Check if the role is "buyer"
+    // Check if the role is "seller"
     if ($account->role !== 'seller') {
         return response()->json([
             'status' => false,
@@ -240,9 +240,7 @@ class AccountsController extends Controller
     ], 200)
     ->withCookie(cookie('token', '1', 15))
     ->sameSite('None')
-    ->secure(false);
-    ;
-
+    ->secure(false); // Set to true if you're using https
 }
 
     
