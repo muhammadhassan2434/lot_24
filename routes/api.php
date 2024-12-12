@@ -48,3 +48,9 @@ Route::post('/seller-login',[AccountsController::class,'sellerLogin']);
 
 
 Route::post('/store-product',[ProductController::class,'store']);
+
+Route::resource('/accounts',AccountsController::class);
+Route::post('/store-account',[AccountsController::class,'storeAccounts']);
+Route::post('/store-invoice',[AccountsController::class,'storeInvoice']);
+Route::post('/store-contact', [ContactController::class, 'store']);
+Route::get('/sellerproduct/{id}',[ProductController::class,'sellerproducts']);

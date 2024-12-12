@@ -63,8 +63,14 @@
                 </li>
                 <li>
                     <a href="{{ route('account.index')}}" class="waves-effect">
-                        <i class="fa-brands fa-product-hunt"></i>
+                        <i class="fa-solid fa-user-secret"></i>
                         <span>Buyer's/Seller's</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('contact.index')}}" class="waves-effect">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                        <span>Messages</span>
                     </a>
                 </li>
                 <li>
@@ -73,15 +79,7 @@
                         <span> Users</span>
                     </a>
                 </li>
-                {{-- <li class="has_sub">
-                    <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-layers"></i> <span> Advanced UI </span> <span class="float-right"><i class="mdi mdi-chevron-right"></i></span></a>
-                    <ul class="list-unstyled">
-                        <li><a href="advanced-highlight.html">Highlight</a></li>
-                        <li><a href="advanced-rating.html">Rating</a></li>
-                        <li><a href="advanced-alertify.html">Alertify</a></li>
-                        <li><a href="advanced-rangeslider.html">Range Slider</a></li>
-                    </ul>
-                </li> --}}
+                
 
             </ul>
         </div>
