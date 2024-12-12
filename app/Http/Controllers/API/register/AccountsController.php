@@ -238,7 +238,10 @@ class AccountsController extends Controller
         'message' => 'Login successful',
         'account' => $account,
     ], 200)
-    ->withCookie(cookie('token', '1', 15));
+    ->withCookie(cookie('token', '1', 15))
+    ->sameSite('None')
+    ->secure(false);
+    ;
 
 }
 
