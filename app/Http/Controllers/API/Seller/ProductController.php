@@ -421,4 +421,21 @@ class ProductController extends Controller
             'data' => $mostpopularproduct
         ]);
     }
+
+    public function sellerproducts($id)
+    {
+
+        $products = Product::with('images')->where('seller_id',$id)->get();
+
+        if(!$products){
+            return response()->json([
+                'status'=>'false',
+                'message'=>'This Seller cannot upload any Products'
+            ]);
+        }
+        return response()->json([
+            'status' => 'success',
+            'data' => $products
+        ]);
+    }
 }

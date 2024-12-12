@@ -11,6 +11,8 @@ use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\SubscriptionController;
 use App\Http\Controllers\API\register\AccountsController;
 use App\Http\Controllers\API\Seller\ProductController;
+use App\Http\Controllers\API\contact\ContactController;
+
 
 // Admin login route
 
@@ -50,3 +52,7 @@ Route::delete('/account/delete/{id}',[AccountsController::class,'destroy'])->nam
 
 
 
+Route::get('/contactlist',[ContactController::class,'index'])->name('contact.index');
+Route::delete('/contact-delete/{id}',[ContactController::class,'destroy'])->name('contact.destroy');
+Route::post('/admin/contact/status-update',[ContactController::class,'update'])->name('contact.updatestatus');
+Route::get('/admin/contact/{id}', [ContactController::class, 'show'])->name('contact.show');

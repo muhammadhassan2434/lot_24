@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\admin\SubscriptionController;
+use App\Http\Controllers\API\contact\ContactController;
 use App\Http\Controllers\API\register\AccountsController;
 use App\Http\Controllers\Authentication\API\AuthController;
 use App\Http\Controllers\API\Seller\ProductController;

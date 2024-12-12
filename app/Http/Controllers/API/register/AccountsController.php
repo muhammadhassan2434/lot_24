@@ -110,14 +110,11 @@ class AccountsController extends Controller
             'surname' => 'required|string|max:255',
             'email' => 'required|email|unique:accounts',
             'password' => 'required|min:8',
+            'country_code' => 'nullable',
             'phone_number' => 'nullable|string',
             'country' => 'required|string',
             'role' => 'required|in:buyer,seller',
             'subscription_id' => 'required',
-            'company' => 'required_if:want_invoice,true',
-            'street_unit' => 'required_if:want_invoice,true',
-            'postal_code' => 'required_if:want_invoice,true',
-            'city' => 'required_if:want_invoice,true',
         ]);
 
         if ($validated->fails()) {
@@ -133,30 +130,53 @@ class AccountsController extends Controller
             'surname' => $request->surname,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'country_code' => $request->country_code,
             'phone_number' => $request->phone_number,
             'country' => $request->country,
             'role' => $request->role,
             'subscription_id' => $request->subscription_id,
         ]);
-        if ($request->want_invoice) {
-            Invoice::create([
-                'account_id' => $account->id,
-                'company' => $request->company,
-                'eu_tax_number' => $request->eu_tax_number,
-                'street_unit' => $request->street_unit,
-                'postal_code' => $request->postal_code,
-                'city' => $request->city,
-            ]);
-        }
+
         return response()->json([
             'status' => true,
             'message' => 'Account created successfully',
-            'Account' => $account,
-
-            // Return image URL in response
+            'account' => $account,
         ], 201);
     }
 
+    public function storeInvoice(Request $request){
+        $validated = Validator::make($request->all(), [
+            'account_id' => 'required|exists:accounts,id',
+            'company' => 'required|string',
+            'eu_tax_number' => 'nullable|string',
+            'street_unit' => 'required|string',
+            'postal_code' => 'required|string',
+            'city' => 'required|string',
+        ]);
+
+        if ($validated->fails()) {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'Validation failed',
+                'error' => $validated->errors(),
+            ], 400);
+        }
+
+        $invoice = Invoice::create([
+            'account_id' => $request->account_id,
+            'company' => $request->company,
+            'eu_tax_number' => $request->eu_tax_number,
+            'street_unit' => $request->street_unit,
+            'postal_code' => $request->postal_code,
+            'city' => $request->city,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Invoice created successfully',
+            'invoice' => $invoice,
+        ], 201);
+    }
 
 
     

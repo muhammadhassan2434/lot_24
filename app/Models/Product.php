@@ -46,4 +46,8 @@ public function subcategories()
 {
     return $this->belongsTo(Subcategory::class);
 }
+
+public function seller(){
+    return $this->belongsTo(Account::class,'seller_id');
+}
 }
