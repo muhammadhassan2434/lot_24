@@ -43,7 +43,8 @@ Route::get('/most-populer-products', [ProductController::class, 'showmostpopular
 Route::resource('/accounts',AccountsController::class);
 Route::post('/store-account',[AccountsController::class,'storeAccounts']);
 
-Route::post('/account-login',[AccountsController::class,'login']);
+Route::post('/buyer-login',[AccountsController::class,'login']);
+Route::post('/seller-login',[AccountsController::class,'sellerLogin']);
 
 
 Route::post('/store-product',[ProductController::class,'store']);

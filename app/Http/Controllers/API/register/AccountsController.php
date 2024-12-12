@@ -164,7 +164,8 @@ class AccountsController extends Controller
 {
     $validator = Validator::make($request->all(), [
         'email' => 'required|email',
-        'password' => 'required'
+        'password' => 'required',
+        'role' => 'required'
     ]);
 
     if ($validator->fails()) {
@@ -189,6 +190,46 @@ class AccountsController extends Controller
         return response()->json([
             'status' => false,
             'message' => 'Access denied. Only buyers can log in.'
+        ], 403);
+    }
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Login successful',
+        'account' => $account,
+        'token' => $account->createToken('API Token')->plainTextToken
+    ], 200);
+}
+    public function sellerLogin(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+        'password' => 'required',
+        'role' => 'required'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation Failed',
+            'error' => $validator->errors()->all()
+        ], 422);
+    }
+
+    $account = Account::where('email', $request->email)->first();
+
+    if (!$account || !Hash::check($request->password, $account->password)) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid credentials'
+        ], 401);
+    }
+
+    // Check if the role is "buyer"
+    if ($account->role !== 'seller') {
+        return response()->json([
+            'status' => false,
+            'message' => 'Access denied. Only sellers can log in.'
         ], 403);
     }
 
