@@ -237,8 +237,9 @@ class AccountsController extends Controller
         'status' => true,
         'message' => 'Login successful',
         'account' => $account,
-        'token' => $account->createToken('API Token')->plainTextToken
-    ], 200);
+    ], 200)
+    ->withCookie(cookie('token', '1', 15));
+
 }
 
     
