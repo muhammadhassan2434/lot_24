@@ -240,7 +240,7 @@ public function sellerLogin(Request $request)
     ], 200)
     ->withCookie(cookie('token', '1', 15))
     ->sameSite('None')
-    ->secure(false); // Set to true if you're using https
+    ->secure(true); // Set to true if you're using https
 }
 
     
