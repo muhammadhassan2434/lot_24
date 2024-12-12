@@ -23,7 +23,6 @@ Route::get('/country', [ProductController::class, 'country']);
 // Route::apiResource('products', ProductController::class);
 
 Route::get('/get-product',[ProductController::class,'index']);
-Route::post('/store-product',[ProductController::class,'store']);
 Route::get('/edit-product/{id}',[ProductController::class,'editProduct']);
 Route::post('/update-product/{id}',[ProductController::class,'update']);
 Route::get('/get-product/detail/{id}',[ProductController::class,'show']);
@@ -37,12 +36,14 @@ Route::get('/show-subscription',[SubscriptionController::class,'showsubscription
 
 
 //api to get offers product for home page
-Route::get('/weekofferproduct', [ProductController::class, 'showweekofferproduct']);
-Route::get('/recentlyaddedproduct', [ProductController::class, 'showrecentlyaddedproduct']);
-Route::get('/mostpopularproduct', [ProductController::class, 'showmostpopularproduct']);
+Route::get('/week-best-offer', [ProductController::class, 'showweekofferproduct']);
+Route::get('/recent-add-products', [ProductController::class, 'showrecentlyaddedproduct']);
+Route::get('/most-populer-products', [ProductController::class, 'showmostpopularproduct']);
 
 Route::resource('/accounts',AccountsController::class);
 Route::post('/store-account',[AccountsController::class,'storeAccounts']);
 
 Route::post('/account-login',[AccountsController::class,'login']);
 
+
+Route::post('/store-product',[ProductController::class,'store']);
