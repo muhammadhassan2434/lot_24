@@ -54,6 +54,8 @@ Route::post('/store-account',[AccountsController::class,'storeAccounts']);
 Route::post('/store-invoice',[AccountsController::class,'storeInvoice']);
 Route::post('/store-contact', [ContactController::class, 'store']);
 Route::get('/sellerproduct/{id}',[ProductController::class,'sellerproducts']);
+Route::get('/get-buyers', [AccountsController::class, 'getBuyers']);
+Route::get('/get-sellers', [AccountsController::class, 'getSellers']);
 
 
 // chat apis

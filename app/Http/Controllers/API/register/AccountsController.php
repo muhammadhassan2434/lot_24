@@ -265,4 +265,40 @@ public function sellerLogin(Request $request)
 
     
 
+public function getSellers()
+    {
+        $sellers = Account::where('role', 'seller')->get();
+
+        if ($sellers->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No sellers found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sellers retrieved successfully',
+            'data' => $sellers,
+        ], 200);
+    }
+
+    public function getBuyers()
+    {
+        $buyers = Account::where('role', 'buyer')->get();
+
+        if ($buyers->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No buyers found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Buyers retrieved successfully',
+            'data' => $buyers,
+        ], 200);
+    }
+
 }
