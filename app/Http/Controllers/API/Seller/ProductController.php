@@ -156,7 +156,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with('images','category:id,name','country:id,name','brand:id,name')->find($id);
+        $product = Product::with('images','category:id,name','country:id,name','brand:id,name','seller:id,phone_number')->find($id);
 
         if (!$product) {
             return response()->json([

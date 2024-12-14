@@ -5,8 +5,7 @@ use App\Http\Controllers\API\contact\ContactController;
 use App\Http\Controllers\API\register\AccountsController;
 use App\Http\Controllers\Authentication\API\AuthController;
 use App\Http\Controllers\API\Seller\ProductController;
-
-
+use App\Http\Controllers\ChatController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -55,3 +54,8 @@ Route::post('/store-account',[AccountsController::class,'storeAccounts']);
 Route::post('/store-invoice',[AccountsController::class,'storeInvoice']);
 Route::post('/store-contact', [ContactController::class, 'store']);
 Route::get('/sellerproduct/{id}',[ProductController::class,'sellerproducts']);
+
+
+// chat apis
+Route::get('/chats', [ChatController::class, 'getMessages']);
+Route::post('/chats', [ChatController::class, 'sendMessage']);
