@@ -220,6 +220,7 @@ class AccountsController extends Controller
         'token' => $account->createToken('API Token')->plainTextToken
     ], 200);
 }
+
 public function sellerLogin(Request $request)
 {
     $validator = Validator::make($request->all(), [
@@ -257,11 +258,13 @@ public function sellerLogin(Request $request)
         'status' => true,
         'message' => 'Login successful',
         'account' => $account,
-    ], 200)
-    ->withCookie(cookie('token', '1', 15))
-    ->sameSite('None')
-    ->secure(true); // Set to true if you're using https
+        'token' => $account->createToken('API Token')->plainTextToken
+    ], 200);
+    // ->withCookie(cookie('token', '1', 15))
+    // ->sameSite('None')
+    // ->secure(true); // Set to true if you're using https
 }
+/******  4bf2edd3-07e1-4013-a075-b3b2ef3a3415  *******/
 
     
 
