@@ -74,12 +74,18 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('review.index')}}" class="waves-effect">
+                        <i class="fa-regular fa-comments"></i>
+                        <span>Reviews</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('user.index')}}" class="waves-effect">
                         <i class="fa-solid fa-user"></i>
                         <span> Users</span>
                     </a>
                 </li>
-                
+
 
             </ul>
         </div>

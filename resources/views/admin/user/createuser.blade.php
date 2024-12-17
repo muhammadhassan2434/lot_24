@@ -35,7 +35,6 @@
             <label for="role">Role</label>
             <select id="" name="role" class="form-control">
                 <option value="customer">Customer</option>
-                <option value="seller">Seller</option>
                 <option value="admin">Admin</option>
                 <option value="superadmin">Super-Admin</option>
 

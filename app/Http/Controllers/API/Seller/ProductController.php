@@ -424,6 +424,7 @@ class ProductController extends Controller
 
     public function sellerproducts($id)
     {
+       
 
         $products = Product::with('images')->where('seller_id',$id)->get();
 

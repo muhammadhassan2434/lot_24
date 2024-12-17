@@ -120,6 +120,39 @@ return redirect()->route('user.index')->with('success', 'User updated successful
 
     //admin auth
 
+    public function adminlogin(Request $request)
+    {
+        $validator = validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required'
+
+        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator);
+        }
+        $user = User::where('email', $request->email)->first();
+
+        if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            return redirect()->back()->with('error', 'Wrong password. Please try again.');
+        } elseif (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            Auth::login($user);
+            if (Auth::user()->role == 'admin') {
+                return redirect()->route('admindashboard.index');
+            }
+            else {
+            return redirect()->back()->with('Error','You are not eligible');
+            }
+        } else {
+            return redirect()->back()->with('Error','You are not eligible');
+        }
+    }
+
+    public function adminlogout()
+    {
+        Auth::logout(); // Log out the user
+        return redirect()->route('admin')->with('success', 'You have been logged out.');
+    }
+
 
 
 }

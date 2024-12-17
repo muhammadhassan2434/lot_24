@@ -6,6 +6,9 @@ use App\Http\Controllers\API\register\AccountsController;
 use App\Http\Controllers\Authentication\API\AuthController;
 use App\Http\Controllers\API\Seller\ProductController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Middleware\buyerAuthenticate;
+use App\Http\Middleware\sellerAuthenticate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -61,3 +64,19 @@ Route::get('/get-sellers', [AccountsController::class, 'getSellers']);
 // chat apis
 Route::get('/chats', [ChatController::class, 'getMessages']);
 Route::post('/chats', [ChatController::class, 'sendMessage']);
+
+
+
+Route::get('/get-reviews',[ReviewController::class,'show']);
+
+
+Route::middleware(sellerAuthenticate::class)->group(function () {
+
+    Route::get('/get-sellers', [AccountsController::class, 'getSellers']);
+
+});
+Route::middleware(buyerAuthenticate::class)->group(function () {
+
+    Route::get('/get-buyers', [AccountsController::class, 'getBuyers']);
+
+});

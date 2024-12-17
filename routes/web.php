@@ -12,7 +12,8 @@ use App\Http\Controllers\admin\SubscriptionController;
 use App\Http\Controllers\API\register\AccountsController;
 use App\Http\Controllers\API\Seller\ProductController;
 use App\Http\Controllers\API\contact\ContactController;
-
+use App\Http\Controllers\ReviewController;
+use App\Http\Middleware\AdminAuthenticate;
 
 // Admin login route
 
@@ -23,6 +24,11 @@ Route::get('admin', function () {
     return view('admin.layout.adminlogin');
 })->name('admin');
 
+Route::post('/admin-login', [UsersController::class, 'adminlogin'])->name('admin.login');
+
+Route::post('/admin-logout', [UsersController::class, 'adminlogout'])->name('admin.logout');
+
+Route::middleware(AdminAuthenticate::class)->group(function () {
 
     Route::get('/admindashboard', [DashboardController::class, 'index'])->name('admindashboard.index');
     Route::resource('category', CategoriesController::class);
@@ -56,3 +62,12 @@ Route::get('/contactlist',[ContactController::class,'index'])->name('contact.ind
 Route::delete('/contact-delete/{id}',[ContactController::class,'destroy'])->name('contact.destroy');
 Route::post('/admin/contact/status-update',[ContactController::class,'update'])->name('contact.updatestatus');
 Route::get('/admin/contact/{id}', [ContactController::class, 'show'])->name('contact.show');
+
+
+Route::get('/reviewslist',[ReviewController::class,'index'])->name('review.index');
+Route::get('/reviews/create',[ReviewController::class,'create'])->name('review.create');
+Route::post('/reviews/store',[ReviewController::class,'store'])->name('review.store');
+Route::get('/review/edit/{id}',[ReviewController::class,'edit'])->name('review.edit');
+Route::put('/review/update/{id}',[ReviewController::class,'update'])->name('review.update');
+Route::delete('/review-delete/{id}',[ReviewController::class,'destroy'])->name('review.destroy');
+});
