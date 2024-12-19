@@ -4,8 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Account extends Model
+class Account extends Authenticatable
 {
     use HasFactory , HasApiTokens;
     protected $table = 'accounts';
@@ -38,4 +39,9 @@ class Account extends Model
 {
     return $this->belongsTo(Subscription::class, 'subscription_id');
 }
+
+public function messages() {
+    return $this->hasMany(Message::class, 'sender_id');
+}
+
 }

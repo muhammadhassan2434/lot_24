@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -185,7 +186,6 @@ class AccountsController extends Controller
     $validator = Validator::make($request->all(), [
         'email' => 'required|email',
         'password' => 'required',
-        'role' => 'required'
     ]);
 
     if ($validator->fails()) {
@@ -226,7 +226,6 @@ public function sellerLogin(Request $request)
     $validator = Validator::make($request->all(), [
         'email' => 'required|email',
         'password' => 'required',
-        'role' => 'required'
     ]);
 
     if ($validator->fails()) {
@@ -302,6 +301,24 @@ public function getSellers()
             'message' => 'Buyers retrieved successfully',
             'data' => $buyers,
         ], 200);
+    }
+
+    public function authInfo(){
+         // Retrieve authenticated account
+         $account = Auth::guard('accounts')->user();
+
+         if ($account) {
+             return response()->json([
+                 'success' => true,
+                 'data' => $account,
+                 'message' => 'Account data retrieved successfully',
+             ], 200);
+         }
+ 
+         return response()->json([
+             'success' => false,
+             'message' => 'Unauthorized',
+         ], 401);
     }
 
 }
