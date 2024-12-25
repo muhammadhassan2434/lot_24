@@ -53,7 +53,7 @@
                                 <li class="list-inline-item dropdown notification-list">
                                     <a class="nav-link dropdown-toggle arrow-none waves-effect nav-user" data-toggle="dropdown" href="#" role="button"
                                        aria-haspopup="false" aria-expanded="false">
-                                       <span class="d-none d-md-block fw-bold text-white font-14">{{Auth::user()->name }}<i
+                                       {{-- <span class="d-none d-md-block fw-bold text-white font-14">{{Auth::user()->name }}<i --}}
                                         class="mdi mdi-chevron-down"></i></span>
                                        {{-- <img src="assets/images/users/avatar-1.jpg" alt="user" class="rounded-circle"> --}}
                                     </a>
@@ -100,7 +100,7 @@
                 </div> <!-- content -->
 
                 <footer class="footer">
-                    © 2025 Dev💀Guru
+                    © 2025 
                 </footer>
 
             </div>

@@ -18,4 +18,7 @@ class Message extends Model
     public function sender() {
         return $this->belongsTo(Account::class, 'sender_id');
     }
+    // public function reciever() {
+    //     return $this->belongsTo(Account::class, 'reciever_id');
+    // }
 }

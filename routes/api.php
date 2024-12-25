@@ -6,12 +6,22 @@ use App\Http\Controllers\API\register\AccountsController;
 use App\Http\Controllers\Authentication\API\AuthController;
 use App\Http\Controllers\API\Seller\ProductController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ColorController;
+use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SearchController;
 use App\Http\Middleware\buyerAuthenticate;
 use App\Http\Middleware\sellerAuthenticate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
+
+
+
+Broadcast::channel('chat-channel', function ($user) {
+    return true;
+});
 
 Route::post('signup', [AuthController::class, 'signup']);
 Route::post('login', [AuthController::class, 'login'])->name('api.login');
@@ -62,17 +72,30 @@ Route::get('/get-buyers', [AccountsController::class, 'getBuyers']);
 Route::get('/get-sellers', [AccountsController::class, 'getSellers']);
 
 
+Route::get('/search/country', [SearchController::class, 'searchByCountry']);
+Route::get('/search/category/{id}', [SearchController::class, 'searchByCategory']);
+Route::get('/search/product', [SearchController::class, 'searchByProduct']);
+
+Route::get('/header/list', [HeaderController::class, 'show']);
+Route::get('/color/list', [ColorController::class, 'getColors']);
+
+
+
 // chat apis
-// Route::middleware('auth:sanctum')->group(function () {
 Route::get('/chats', [ChatController::class, 'index']);
 Route::post('/createChat', [MessageController::class, 'createChat']);
 Route::get('/messages/{chat_id}', [MessageController::class, 'getMessages']);
 Route::post('/messages', [MessageController::class, 'sendMessage']);
 Route::get('/buyer/chats/{buyer_id}', [ChatController::class, 'getBuyerChats']);
-// });
+Route::get('/get/chats/id/{id}', [ChatController::class, 'getChatId']);
+Route::get('/get/account/info/{id}', [ChatController::class, 'getAccountInfo']);
+
+Route::post('/chat/id', [ChatController::class, 'chatId']);
+Route::middleware('auth:sanctum')->group(function () {
+Route::get('/get/authdata', [AccountsController::class, 'authInfo']);
+});
 
 Route::get('/get-reviews', [ReviewController::class, 'show']);
-Route::get('/get/authdata', [AccountsController::class, 'authInfo']);
 
 
 

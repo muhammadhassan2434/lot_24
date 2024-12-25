@@ -35,7 +35,7 @@
                         </form>
                     </div>
                     <div class="card-footer text-center">
-                        <small>&copy; 2025 Dev💀Guru</small>
+                        <small>&copy; 2025 </small>
                     </div>
                 </div>
             </div>

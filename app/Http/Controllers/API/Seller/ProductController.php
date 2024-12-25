@@ -50,16 +50,16 @@ class ProductController extends Controller
 
         // Validate the request
         $validated = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
+            'title' => 'required',
             'description' => 'nullable|string',
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'required',
             'regular_price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
             'wholesale_price' => 'nullable|numeric',
             'badges' => 'nullable|string',
             'minimal_order' => 'required|integer|min:1',
             'product_stock' => 'required|integer|min:0',
-            'stock_status' => 'required|in:in_stock,out_of_stock,pre_order',
+            'stock_status' => 'required',
             'sku' => 'nullable|string|max:255',
             'ean' => 'nullable|string|max:255',
             'country_id' => 'nullable|exists:countries,id',
@@ -345,7 +345,7 @@ class ProductController extends Controller
 
     public function category()
     {
-        $categories = Category::select('id', 'name')->where('status', 'active')->get();
+        $categories = Category::select('id', 'name','image')->where('status', 'active')->get();
         return response()->json(
             [
                 'status' => 'success',

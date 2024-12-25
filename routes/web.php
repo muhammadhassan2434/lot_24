@@ -8,10 +8,13 @@ use App\Http\Controllers\admin\UsersController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\admin\DashboardController;
+// use App\Http\Controllers\admin\HeaderController;
 use App\Http\Controllers\admin\SubscriptionController;
 use App\Http\Controllers\API\register\AccountsController;
 use App\Http\Controllers\API\Seller\ProductController;
 use App\Http\Controllers\API\contact\ContactController;
+use App\Http\Controllers\ColorController;
+use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Middleware\AdminAuthenticate;
 
@@ -28,7 +31,7 @@ Route::post('/admin-login', [UsersController::class, 'adminlogin'])->name('admin
 
 Route::post('/admin-logout', [UsersController::class, 'adminlogout'])->name('admin.logout');
 
-Route::middleware(AdminAuthenticate::class)->group(function () {
+// Route::middleware(AdminAuthenticate::class)->group(function () {
 
     Route::get('/admindashboard', [DashboardController::class, 'index'])->name('admindashboard.index');
     Route::resource('category', CategoriesController::class);
@@ -70,4 +73,17 @@ Route::post('/reviews/store',[ReviewController::class,'store'])->name('review.st
 Route::get('/review/edit/{id}',[ReviewController::class,'edit'])->name('review.edit');
 Route::put('/review/update/{id}',[ReviewController::class,'update'])->name('review.update');
 Route::delete('/review-delete/{id}',[ReviewController::class,'destroy'])->name('review.destroy');
-});
+
+Route::get('/header/list',[HeaderController::class,'index'])->name('header.index');
+Route::get('/header/create',[HeaderController::class,'create'])->name('header.create');
+Route::get('/header/edit/{id}',[HeaderController::class,'edit'])->name('header.edit');
+Route::put('/header/update/{id}',[HeaderController::class,'update'])->name('header.update');
+Route::delete('/header-delete/{id}',[HeaderController::class,'destroy'])->name('header.destroy');
+
+Route::get('/color/list',[ColorController::class,'index'])->name('color.index');
+Route::get('/color/create',[ColorController::class,'create'])->name('color.create');
+Route::post('/color/store',[ColorController::class,'store'])->name('color.store');
+Route::get('/color/edit/{id}',[ColorController::class,'edit'])->name('color.edit');
+Route::put('/color/update/{id}',[ColorController::class,'update'])->name('color.update');
+Route::delete('/color-delete/{id}',[ColorController::class,'destroy'])->name('color.destroy');
+// });

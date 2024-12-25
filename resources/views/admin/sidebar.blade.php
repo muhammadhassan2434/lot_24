@@ -85,6 +85,19 @@
                         <span> Users</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('header.index')}}" class="waves-effect">
+                        <i class="fa-brands fa-hire-a-helper"></i>
+                        <span>Header's</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('color.index')}}" class="waves-effect">
+                        <i class="fa-brands fa-hire-a-helper"></i>
+                        <span>Color's</span>
+                    </a>
+                </li>
+
 
 
             </ul>

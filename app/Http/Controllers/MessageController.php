@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewChatMessage;
 use App\Models\Chat;
 use App\Models\Message;
 use Illuminate\Container\Attributes\Auth;
@@ -31,7 +32,7 @@ class MessageController extends Controller
 }
 
     public function getMessages($chat_id) {
-        return Message::where('chat_id', $chat_id)->with('sender')->get();
+        return Chat::where('id', $chat_id)->with('messages')->get();
     }
 
     public function sendMessage(Request $request) {
@@ -50,6 +51,8 @@ class MessageController extends Controller
             'sender_id' => $request->sender_id,
             'message' => $request->message
         ]);
+    
+        broadcast(new NewChatMessage($message))->toOthers();
     
         return response()->json($message, 201);
     }

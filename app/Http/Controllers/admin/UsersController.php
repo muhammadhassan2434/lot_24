@@ -17,8 +17,8 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $users=User::all();
-        return view('admin.user.userlist',compact('users'));
+        $users = User::all();
+        return view('admin.user.userlist', compact('users'));
     }
 
     /**
@@ -26,7 +26,7 @@ class UsersController extends Controller
      */
     public function create()
     {
-         return view('admin.user.createuser');
+        return view('admin.user.createuser');
     }
 
     /**
@@ -42,21 +42,18 @@ class UsersController extends Controller
                 'role' => 'required',
                 'password' => 'required',
             ]
-            );
-        if($validateuser->fails()){
+        );
+        if ($validateuser->fails()) {
             return redirect()->back()->withErrors($validateuser->errors());
-
         }
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
-            'password' =>$request->password,
+            'password' => $request->password,
         ]);
 
-        return redirect()->route('user.index')->with('sucess',"User Created SuccessFully");
-
-
+        return redirect()->route('user.index')->with('sucess', "User Created SuccessFully");
     }
 
     /**
@@ -73,7 +70,7 @@ class UsersController extends Controller
     public function edit(string $id)
     {
         $user = User::find($id);
-        return view('admin.user.edituser',compact('user'));
+        return view('admin.user.edituser', compact('user'));
     }
 
     /**
@@ -82,30 +79,29 @@ class UsersController extends Controller
     public function update(Request $request, string $id)
     {
 
-        $user=User::find($id);
+        $user = User::find($id);
         $validateuser = validator::make(
             $request->all(),
             [
                 'name' => 'required',
                 'email' => 'required|email',
                 'role' => 'required',
-                'password' => 'required',
             ]
-            );
-        if($validateuser->fails()){
+        );
+        if ($validateuser->fails()) {
             return redirect()->back()->withErrors($validateuser->errors());
-
         }
 
-$user->name =$request->name;
-$user->email =$request->email;
-$user->role =$request->role;
-$user->password = Hash::make($request->password); // Hash the password
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->role = $request->role;
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }// Hash the password
 
-$user->save();
+        $user->save();
 
-return redirect()->route('user.index')->with('success', 'User updated successfully!');
-
+        return redirect()->route('user.index')->with('success', 'User updated successfully!');
     }
 
     /**
@@ -138,12 +134,11 @@ return redirect()->route('user.index')->with('success', 'User updated successful
             Auth::login($user);
             if (Auth::user()->role == 'admin') {
                 return redirect()->route('admindashboard.index');
-            }
-            else {
-            return redirect()->back()->with('Error','You are not eligible');
+            } else {
+                return redirect()->back()->with('Error', 'You are not eligible');
             }
         } else {
-            return redirect()->back()->with('Error','You are not eligible');
+            return redirect()->back()->with('Error', 'You are not eligible');
         }
     }
 
@@ -152,7 +147,4 @@ return redirect()->route('user.index')->with('success', 'User updated successful
         Auth::logout(); // Log out the user
         return redirect()->route('admin')->with('success', 'You have been logged out.');
     }
-
-
-
 }

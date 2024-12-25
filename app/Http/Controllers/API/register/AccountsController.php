@@ -305,7 +305,7 @@ public function getSellers()
 
     public function authInfo(){
          // Retrieve authenticated account
-         $account = Auth::guard('accounts')->user();
+         $account = Auth::user();
 
          if ($account) {
              return response()->json([

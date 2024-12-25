@@ -6,6 +6,10 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    protected $listen = [
+        'App\Events\NewChatMessage' => [],
+    ];
+    
     /**
      * Register any application services.
      */

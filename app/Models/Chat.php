@@ -13,5 +13,10 @@ protected $fillable = ['buyer_id', 'seller_id'];
 public function messages() {
     return $this->hasMany(Message::class);
 }
+public function account() {
+    return $this->hasMany(Account::class);
+}
+
+
 
 }
