@@ -12,7 +12,7 @@
 @section('panel')
 
 <div class="container ">
-    <h1>Add New Color</h1>
+    <h1>Add New Search</h1>
 
     <!-- Display success or error messages -->
     @if(session('success'))
@@ -21,19 +21,14 @@
 
     <!-- Form to add new category -->
     <div class="col-6">
-    <form action="{{ route('color.store')}}" method="POST">
+    <form action="{{ route('popularsearch.store')}}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="form-group">
-            <label for="icon">Title</label>
-            <input type="text" name="title" id="" class="form-control">
+            <label for="icon">Search Title</label>
+            <input type="text" name="search" id="search" class="form-control">
         </div>
-        <div class="form-group">
-            <label for="description">Color Hex code </label>
-            <input type="text" name="color" id="color" class="form-control" required>
-        </div>
-
         <button type="submit" class="btn btn-primary mt-3">Save</button>
-        <a href="{{ route('color.index')}}" class="btn btn-secondary mt-3">Back</a>
+        <a href="{{ route('popularsearch.index')}}" class="btn btn-secondary mt-3">Back</a>
     </form>
 </div>
 </div>

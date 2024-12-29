@@ -11,7 +11,7 @@
 @section('panel')
 
 <div class="container ">
-    <h1>Edit Header</h1>
+    <h1>Edit Color</h1>
 
     <!-- Display success or error messages -->
     @if(session('success'))

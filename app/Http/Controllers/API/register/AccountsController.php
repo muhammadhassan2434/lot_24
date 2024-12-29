@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Http\Controllers\Controller;
+use App\Jobs\AccontCreateJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -137,6 +138,10 @@ class AccountsController extends Controller
             'role' => $request->role,
             'subscription_id' => $request->subscription_id,
         ]);
+
+        $email = $request->email;
+
+        AccontCreateJob::dispatch($email);
 
         return response()->json([
             'status' => true,

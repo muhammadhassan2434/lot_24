@@ -14,6 +14,9 @@ use App\Http\Controllers\SearchController;
 use App\Http\Middleware\buyerAuthenticate;
 use App\Http\Middleware\sellerAuthenticate;
 use Illuminate\Http\Request;
+use App\Http\Controllers\TopbarController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\PopularsearchController  ;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
@@ -78,6 +81,9 @@ Route::get('/search/product', [SearchController::class, 'searchByProduct']);
 
 Route::get('/header/list', [HeaderController::class, 'show']);
 Route::get('/color/list', [ColorController::class, 'getColors']);
+Route::get('/topbar/list',[TopbarController::class,'gettopbar']);
+Route::get('/popularsearch/list',[PopularsearchController::class,'show']);
+Route::get('/blog/list',[BlogController::class,'show']);
 
 
 

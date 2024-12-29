@@ -23,7 +23,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('images', 'category','country','brand')->get();
+        $products = Product::with('images', 'category','country','brand','seller')->get();
+        // $sellerId = $products->pluck('seller_id')->toArray();
 
         if ($products->isEmpty()) {
             return response()->json([
@@ -156,7 +157,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with('images','category:id,name','country:id,name','brand:id,name','seller:id,phone_number')->find($id);
+        $product = Product::with('images','category:id,name','country:id,name','brand:id,name','seller')->find($id);
 
         if (!$product) {
             return response()->json([
