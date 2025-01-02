@@ -106,49 +106,66 @@ class AccountsController extends Controller
 
 
 
-    public function storeAccounts(Request $request){
-        $validated = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'surname' => 'required|string|max:255',
-            'email' => 'required|email|unique:accounts',
-            'password' => 'required|min:8',
-            'country_code' => 'nullable',
-            'phone_number' => 'nullable|string',
-            'country' => 'required|string',
-            'role' => 'required|in:buyer,seller',
-            'subscription_id' => 'required',
-        ]);
+    public function storeAccounts(Request $request) {
+    // Validate the request data
+    $validated = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'surname' => 'required|string|max:255',
+        'email' => 'required|email|unique:accounts',
+        'password' => 'required|min:8',
+        'country_code' => 'nullable',
+        'phone_number' => 'nullable|string',
+        'country' => 'required|string',
+        'role' => 'required|in:buyer,seller',
+        'subscription_id' => 'required',
+    ]);
 
-        if ($validated->fails()) {
-            return response()->json([
-                'status' => 'false',
-                'message' => 'Validation failed',
-                'error' => $validated->errors(),
-            ], 400);
-        }
-
-        $account = Account::create([
-            'name' => $request->name,
-            'surname' => $request->surname,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'country_code' => $request->country_code,
-            'phone_number' => $request->phone_number,
-            'country' => $request->country,
-            'role' => $request->role,
-            'subscription_id' => $request->subscription_id,
-        ]);
-
-        $email = $request->email;
-
-        AccontCreateJob::dispatch($email);
-
+    if ($validated->fails()) {
         return response()->json([
-            'status' => true,
-            'message' => 'Account created successfully',
-            'account' => $account,
-        ], 201);
+            'status' => 'false',
+            'message' => 'Validation failed',
+            'error' => $validated->errors(),
+        ], 400);
     }
+
+    // Create the Account
+    $account = Account::create([
+        'name' => $request->name,
+        'surname' => $request->surname,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'country_code' => $request->country_code,
+        'phone_number' => $request->phone_number,
+        'country' => $request->country,
+        'role' => $request->role,
+        'subscription_id' => $request->subscription_id,
+    ]);
+
+    // Check if invoice is required (based on the invoice checkbox)
+    $invoice = null;
+    if ($request->invoice) {
+        // Create the Invoice only if invoice is required
+        $invoice = Invoice::create([
+            'account_id' => $account->id,
+            'company' => $request->company_name ?? null,
+            'eu_tax_number' => $request->tax_number ?? null,
+            'street_unit' => $request->street_address ?? null,
+            'postal_code' => $request->postal_code ?? null,
+            'city' => $request->city ?? null,
+        ]);
+    }
+
+    // Dispatch the account creation job
+    $email = $request->email;
+    AccontCreateJob::dispatch($email);
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Account created successfully',
+        'account' => $account,
+        'invoice' => $invoice,  // Return the invoice data only if it was created
+    ], 201);
+}
 
     public function storeInvoice(Request $request){
         $validated = Validator::make($request->all(), [

@@ -69,10 +69,11 @@ Route::post('/store-product', [ProductController::class, 'store']);
 Route::resource('/accounts', AccountsController::class);
 Route::post('/store-account', [AccountsController::class, 'storeAccounts']);
 Route::post('/store-invoice', [AccountsController::class, 'storeInvoice']);
-Route::post('/store-contact', [ContactController::class, 'store']);
 Route::get('/sellerproduct/{id}', [ProductController::class, 'sellerproducts']);
 Route::get('/get-buyers', [AccountsController::class, 'getBuyers']);
 Route::get('/get-sellers', [AccountsController::class, 'getSellers']);
+
+Route::post('/contactus', [ContactController::class, 'contactus']);
 
 
 Route::get('/search/country', [SearchController::class, 'searchByCountry']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\contact;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Contact;
+use Illuminate\Support\Facades\Validator;
 
 class ContactController extends Controller
 {
@@ -21,29 +22,29 @@ class ContactController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'massage' => 'required',
-        ]);
+    // public function storeRecord(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|email|max:255',
+    //         'massage' => 'required',
+    //     ]);
 
-        // Create a new contact entry
-        $contact = Contact::create([
-            'name' =>$request->name,
-            'email' => $request->email,
-            'massage' => $request->massage,
-            'status' => 'unread', // Default status
-        ]);
+    //     // Create a new contact entry
+    //     $contact = Contact::create([
+    //         'name' =>$request->name,
+    //         'email' => $request->email,
+    //         'massage' => $request->massage,
+    //         'status' => 'unread', // Default status
+    //     ]);
 
-        // Return success response
-        return response()->json([
-            'status' => true,
-            'message' => 'Contact message stored successfully',
-            'contact' => $contact,
-        ], 201);
-    }
+    //     // Return success response
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Contact message stored successfully',
+    //         'contact' => $contact,
+    //     ], 201);
+    // }
 
 
 
@@ -91,5 +92,31 @@ class ContactController extends Controller
         $contact= Contact::find($id);
         $contact->delete($id);
         return redirect()->route('contact.index');
+    }
+
+
+    public function contactus(Request $request){
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'massage' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors(), 422);
+        }
+
+
+        $contact = new Contact();
+        $contact->name = $request->name;
+        $contact->email = $request->email;
+        $contact->message = $request->message;
+        $contact->status = $request->unread;
+        $contact->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Contact message stored successfully',
+        ]);
     }
 }

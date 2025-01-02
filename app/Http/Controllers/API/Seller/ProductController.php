@@ -23,7 +23,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('images', 'category','country','brand','seller')->get();
+        $products = Product::with('images', 'category', 'country', 'brand', 'seller')->get();
         // $sellerId = $products->pluck('seller_id')->toArray();
 
         if ($products->isEmpty()) {
@@ -48,9 +48,9 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-
         // Validate the request
         $validated = Validator::make($request->all(), [
+            'seller_id' => 'required',
             'title' => 'required',
             'description' => 'nullable|string',
             'category_id' => 'required',
@@ -84,6 +84,7 @@ class ProductController extends Controller
 
         // Create the product
         $product = Product::create([
+            'seller_id' => $request->seller_id,
             'title' => $request->title,
             'description' => $request->description,
             'category_id' => $request->category_id,
@@ -100,7 +101,7 @@ class ProductController extends Controller
             'tags' => $request->tags,
             'payment_option' => $request->payment_option,
             'delivery_option' => $request->delivery_option,
-            'brand_id'=>$request->brand_id,
+            'brand_id' => $request->brand_id,
         ]);
 
         $imageUrls = []; // To store URLs of uploaded images
@@ -129,7 +130,6 @@ class ProductController extends Controller
 
                     Log::info('Image saved to database: ' . $imageUrl);
                 }
-
             } catch (\Exception $e) {
                 Log::error('Image upload error: ' . $e->getMessage());
                 return response()->json([
@@ -157,7 +157,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with('images','category:id,name','country:id,name','brand:id,name','seller')->find($id);
+        $product = Product::with('images', 'category:id,name', 'country:id,name', 'brand:id,name', 'seller')->find($id);
 
         if (!$product) {
             return response()->json([
@@ -173,7 +173,6 @@ class ProductController extends Controller
             'product' => $product,
 
         ], 200);
-
     }
 
     /**
@@ -208,102 +207,102 @@ class ProductController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-{
-    // Find the product by ID
-    $product = Product::find($id);
+    {
+        // Find the product by ID
+        $product = Product::find($id);
 
-    if (!$product) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Product not found',
-        ], 404);
-    }
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product not found',
+            ], 404);
+        }
 
-    // Validate the incoming request
-    $validated = Validator::make($request->all(), [
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'category_id' => 'required|exists:categories,id',
-        'regular_price' => 'required|numeric',
-        'sale_price' => 'nullable|numeric',
-        'wholesale_price' => 'nullable|numeric',
-        'badges' => 'nullable|string',
-        'minimal_order' => 'required|integer|min:1',
-        'product_stock' => 'required|integer|min:0',
-        'stock_status' => 'required|in:in_stock,out_of_stock,pre_order',
-        'sku' => 'nullable|string|max:255',
-        'ean' => 'nullable|string|max:255',
-        'country_id' => 'nullable|exists:countries,id',
-        'tags' => 'nullable|string',
-        'payment_option' => 'nullable|string',
-        'delivery_option' => 'nullable|string',
-        'brand_id' => 'nullable|exists:brands,id',
-        'image' => 'nullable|array', // Validate multiple images
-        'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    ]);
+        // Validate the incoming request
+        $validated = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'category_id' => 'required|exists:categories,id',
+            'regular_price' => 'required|numeric',
+            'sale_price' => 'nullable|numeric',
+            'wholesale_price' => 'nullable|numeric',
+            'badges' => 'nullable|string',
+            'minimal_order' => 'required|integer|min:1',
+            'product_stock' => 'required|integer|min:0',
+            'stock_status' => 'required|in:in_stock,out_of_stock,pre_order',
+            'sku' => 'nullable|string|max:255',
+            'ean' => 'nullable|string|max:255',
+            'country_id' => 'nullable|exists:countries,id',
+            'tags' => 'nullable|string',
+            'payment_option' => 'nullable|string',
+            'delivery_option' => 'nullable|string',
+            'brand_id' => 'nullable|exists:brands,id',
+            'image' => 'nullable|array', // Validate multiple images
+            'image.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
 
-    if ($validated->fails()) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Validation Error',
-            'error' => $validated->errors(),
-        ], 400);
-    }
+        if ($validated->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Error',
+                'error' => $validated->errors(),
+            ], 400);
+        }
 
-    // Update product details
-    $product->update([
-        'title' => $request->input('title'),
-        'description' => $request->input('description'),
-        'category_id' => $request->input('category_id'),
-        'regular_price' => $request->input('regular_price'),
-        'sale_price' => $request->input('sale_price'),
-        'wholesale_price' => $request->input('wholesale_price'),
-        'badges' => $request->input('badges'),
-        'minimal_order' => $request->input('minimal_order'),
-        'product_stock' => $request->input('product_stock'),
-        'stock_status' => $request->input('stock_status'),
-        'sku' => $request->input('sku'),
-        'ean' => $request->input('ean'),
-        'country_id' => $request->input('country_id'),
-        'tags' => $request->input('tags'),
-        'payment_option' => $request->input('payment_option'),
-        'delivery_option' => $request->input('delivery_option'),
-        'brand_id' => $request->input('brand_id'),
-    ]);
+        // Update product details
+        $product->update([
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'category_id' => $request->input('category_id'),
+            'regular_price' => $request->input('regular_price'),
+            'sale_price' => $request->input('sale_price'),
+            'wholesale_price' => $request->input('wholesale_price'),
+            'badges' => $request->input('badges'),
+            'minimal_order' => $request->input('minimal_order'),
+            'product_stock' => $request->input('product_stock'),
+            'stock_status' => $request->input('stock_status'),
+            'sku' => $request->input('sku'),
+            'ean' => $request->input('ean'),
+            'country_id' => $request->input('country_id'),
+            'tags' => $request->input('tags'),
+            'payment_option' => $request->input('payment_option'),
+            'delivery_option' => $request->input('delivery_option'),
+            'brand_id' => $request->input('brand_id'),
+        ]);
 
-    if ($request->hasFile('image')) {
-        $oldImages = $product->images; // Assuming `images()` relationship exists
-        foreach ($oldImages as $oldImage) {
-            $oldImagePath = public_path($oldImage->image); // Get full file path
-            if (file_exists($oldImagePath)) {
-                Log::info("Deleting file: " . $oldImagePath);
-                unlink($oldImagePath); // Delete the file
-            } else {
-                Log::warning("File not found: " . $oldImagePath);
+        if ($request->hasFile('image')) {
+            $oldImages = $product->images; // Assuming `images()` relationship exists
+            foreach ($oldImages as $oldImage) {
+                $oldImagePath = public_path($oldImage->image); // Get full file path
+                if (file_exists($oldImagePath)) {
+                    Log::info("Deleting file: " . $oldImagePath);
+                    unlink($oldImagePath); // Delete the file
+                } else {
+                    Log::warning("File not found: " . $oldImagePath);
+                }
+                $oldImage->delete(); // Delete the database record
             }
-            $oldImage->delete(); // Delete the database record
+
+            foreach ($request->file('image') as $image) {
+                $fileName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/Products/'), $fileName);
+
+                $imagePath = 'uploads/Products/' . $fileName;
+
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image' => $imagePath,
+                ]);
+            }
         }
 
-        foreach ($request->file('image') as $image) {
-            $fileName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/Products/'), $fileName);
 
-            $imagePath = 'uploads/Products/' . $fileName;
-
-            ProductImage::create([
-                'product_id' => $product->id,
-                'image' => $imagePath,
-            ]);
-        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Product updated successfully.',
+            'data' => $product,
+        ], 200);
     }
-
-
-    return response()->json([
-        'status' => true,
-        'message' => 'Product updated successfully.',
-        'data' => $product,
-    ], 200);
-}
 
     /**
      * Remove the specified resource from storage.
@@ -346,7 +345,7 @@ class ProductController extends Controller
 
     public function category()
     {
-        $categories = Category::select('id', 'name','image')->where('status', 'active')->get();
+        $categories = Category::select('id', 'name', 'image')->where('status', 'active')->get();
         return response()->json(
             [
                 'status' => 'success',
@@ -356,7 +355,7 @@ class ProductController extends Controller
     }
     public function subcategory($id)
     {
-        $subcategories = SubCategory::select('id', 'name', 'category_id')->with(['category:id,name'])->where('category_id',$id)->where('status', 'active')->get();
+        $subcategories = SubCategory::select('id', 'name', 'category_id')->with(['category:id,name'])->where('category_id', $id)->where('status', 'active')->get();
         return response()->json([
             'status' => 'success',
             'data' => $subcategories
@@ -425,14 +424,14 @@ class ProductController extends Controller
 
     public function sellerproducts($id)
     {
-       
 
-        $products = Product::with('images')->where('seller_id',$id)->get();
 
-        if(!$products){
+        $products = Product::with('images')->where('seller_id', $id)->get();
+
+        if (!$products) {
             return response()->json([
-                'status'=>'false',
-                'message'=>'This Seller cannot upload any Products'
+                'status' => 'false',
+                'message' => 'This Seller cannot upload any Products'
             ]);
         }
         return response()->json([
@@ -440,4 +439,20 @@ class ProductController extends Controller
             'data' => $products
         ]);
     }
+    public function productdetailshow(string $id) {
+        $product = Product::with([
+            'images',
+            'category:id,name',
+            'country:id,name',
+            'brand:id,name',
+            'seller:id,name,surname,email,phone_number'
+        ])->find($id);
+    
+        if (!$product) {
+            return redirect()->back()->with('error', 'Product not found.');
+        }
+    
+        return view('admin.product.productdetail', compact('product'));
+    }
+    
 }
