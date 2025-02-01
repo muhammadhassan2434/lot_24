@@ -32,7 +32,7 @@
         </thead>
         <tbody>
             @foreach($reviews as $review)
-                    <td>{{$review->id}}</td>
+                    <td>{{$loop->iteration}}</td>
                     <td>{{ $review->name }}</td>
                     <td>{{ $review->description }}</td>
 
@@ -48,6 +48,9 @@
             @endforeach
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        {{ $reviews->links() }}
+    </div>
 </div>
 
 

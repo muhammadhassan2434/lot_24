@@ -21,7 +21,7 @@
 
     <!-- Form to add new category -->
     <div class="col-6">
-    <form action="{{ route('header.store')}}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('store.header')}}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="form-group">
             <label for="icon">Icon</label>
@@ -31,6 +31,7 @@
             <label for="description">Header Description</label>
             <input type="text" name="description" id="description" class="form-control" required>
         </div>
+
 
         <button type="submit" class="btn btn-primary mt-3">Save</button>
         <a href="{{ route('header.index')}}" class="btn btn-secondary mt-3">Back</a>

@@ -42,13 +42,14 @@
                     <th>Stock_Status</th>
                     <th>Country</th>
                     <th>Display Tags</th>
+                    <th>Actions</th>
 
                 </tr>
             </thead>
             <tbody>
                 @foreach ($products as $product)
                     <tr>
-                        <td>{{ $product->id }}</td>
+                        <td>{{ $loop->iteration}}</td>
                         <td>
                             @foreach ($product->images as $image)
                                 @if ($image->image)
@@ -83,13 +84,23 @@
                             </select>
                         </td>
 
+                        <td>
+                            <a class="btn btn-primary " href="{{ route('admin.product.detail', $product->id) }}">
+                                View
+                            </a>
 
+
+                        </td>
 
                     </tr>
                 @endforeach
             </tbody>
         </table>
-    </div>
+        <div class="d-flex justify-content-center">
+            {{ $products->links('vendor.pagination.bootstrap-4') }}
+        </div>
+        
+        </div>
 @endsection
 @section('panel.js')
 <script>

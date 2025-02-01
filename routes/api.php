@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\admin\CountriesController;
 use App\Http\Controllers\admin\SubscriptionController;
 use App\Http\Controllers\API\contact\ContactController;
 use App\Http\Controllers\API\register\AccountsController;
@@ -16,7 +17,14 @@ use App\Http\Middleware\sellerAuthenticate;
 use Illuminate\Http\Request;
 use App\Http\Controllers\TopbarController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PrivacypolicyController;
+use App\Http\Controllers\RefundpolicyController;
+use App\Http\Controllers\TermController;
+use App\Http\Controllers\AboutusController;
+use App\Http\Controllers\contactInfoController;
 use App\Http\Controllers\PopularsearchController  ;
+use App\Http\Controllers\SocialMediaController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
@@ -102,6 +110,11 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/get/authdata', [AccountsController::class, 'authInfo']);
 });
 
+
+Route::get('/Terms/condition/page',[TermController::class,'show']);
+Route::get('/Refund/Policy/page',[RefundpolicyController::class,'show']);
+Route::get('/Privacy/Policy/page',[PrivacypolicyController::class,'show']);
+Route::get('/Aboutus/page',[AboutusController::class,'show']);
 Route::get('/get-reviews', [ReviewController::class, 'show']);
 
 
@@ -113,3 +126,17 @@ Route::middleware(sellerAuthenticate::class)->group(function () {
 Route::middleware(buyerAuthenticate::class)->group(function () {
     Route::get('/get-buyers', [AccountsController::class, 'getBuyers']);
 });
+
+
+
+Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
+Route::post('/confirm-payment', [PaymentController::class, 'confirmPayment']);
+
+
+Route::get('/get/contactInfo',[contactInfoController::class,'getInfo']);
+
+Route::get('/get-socialmedia', [SocialMediaController::class, 'show']);
+
+
+
+Route::get('/currency-rates', [CountriesController::class, 'getRates']);

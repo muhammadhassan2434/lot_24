@@ -3,10 +3,10 @@
 <div class="container">
     <div class="row justify-content-between align-items-center">
         <div class="col-auto">
-            <h1>Sub_Categories</h1>
+            <h1>Subcategories</h1>
         </div>
         <div class="col-auto">
-            <a class="btn btn-primary mt-2" href="{{ route('subcategory.create')}}">Add New Sub_Category</a>
+            <a class="btn btn-primary mt-2" href="{{ route('subcategory.create')}}">Add New Subcategory</a>
         </div>
     </div>
 
@@ -35,7 +35,7 @@
         <tbody>
             @foreach($subcategories as $subcategory)
                 <tr>
-                    <td>{{ $subcategory->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $subcategory->name }}</td>
                     <td>{{ $subcategory->category->name }}</td>
                     <td>{{ $subcategory->slug }}</td>
@@ -53,6 +53,9 @@
             @endforeach
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        {{ $subcategories->links() }}
+    </div>
 </div>
 
 

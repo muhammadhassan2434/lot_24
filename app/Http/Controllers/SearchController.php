@@ -92,7 +92,7 @@ class SearchController extends Controller
     // $query = $request->input('query');
 
     // Find categories and subcategories that match the query
-    $products = Product::where('category_id',$id)->get();
+    $products = Product::where('category_id',$id)->with('images')->get();
 
     // If no matching categories or subcategories are found
     if ($products->isEmpty()) {

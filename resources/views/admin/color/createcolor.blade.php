@@ -12,7 +12,7 @@
 @section('panel')
 
 <div class="container ">
-    <h1>Add New Color</h1>
+    <h1>Add New Color's</h1>
 
     <!-- Display success or error messages -->
     @if(session('success'))

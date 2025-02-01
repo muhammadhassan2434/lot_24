@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row justify-content-between align-items-center">
             <div class="col-auto">
-                <h1>Color's</h1>
+                <h1>Customize Color's</h1>
             </div>
             <div class="col-auto">
                 <a class="btn btn-primary mt-2" href="{{ route('color.create') }}">Add New color</a>
@@ -33,7 +33,7 @@
             <tbody>
                 @foreach ($colors as $color)
                     <tr>
-                        <td>{{ $color->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>
                             {{$color->title}}
                         </td>
@@ -53,5 +53,8 @@
                 @endforeach
             </tbody>
         </table>
+        <div class="d-flex justify-content-center">
+            {{ $colors->links() }}
+        </div>
     </div>
 @endsection

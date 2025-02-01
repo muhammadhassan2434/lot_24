@@ -20,6 +20,8 @@
         <link href="{{asset("assets/css/bootstrap.min.css")}}" rel="stylesheet" type="text/css">
         <link href="{{asset("assets/css/icons.css")}}" rel="stylesheet" type="text/css">
         <link href="{{asset("assets/css/style.css")}}" rel="stylesheet" type="text/css">
+        {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
+
         <script src="https://kit.fontawesome.com/f18b623a18.js" crossorigin="anonymous"></script>
         {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> --}}
         @yield('panel.css')
@@ -53,7 +55,7 @@
                                 <li class="list-inline-item dropdown notification-list">
                                     <a class="nav-link dropdown-toggle arrow-none waves-effect nav-user" data-toggle="dropdown" href="#" role="button"
                                        aria-haspopup="false" aria-expanded="false">
-                                       {{-- <span class="d-none d-md-block fw-bold text-white font-14">{{Auth::user()->name }}<i --}}
+                                       <span class="d-none d-md-block fw-bold text-white font-14"><i
                                         class="mdi mdi-chevron-down"></i></span>
                                        {{-- <img src="assets/images/users/avatar-1.jpg" alt="user" class="rounded-circle"> --}}
                                     </a>
@@ -100,7 +102,7 @@
                 </div> <!-- content -->
 
                 <footer class="footer">
-                    © 2025 
+                    CopyRight © 2025
                 </footer>
 
             </div>
@@ -134,6 +136,10 @@
 
         <script src="{{asset("assets/pages/dashborad.js")}}"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
 
         <!-- App js -->

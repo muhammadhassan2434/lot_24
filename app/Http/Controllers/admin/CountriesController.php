@@ -5,16 +5,30 @@ namespace App\Http\Controllers\admin;
 use App\Models\Country;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class CountriesController extends Controller
 {
+
+    public function getRates()
+    {
+        try {
+            $response = Http::get("https://api.exchangerate-api.com/v4/latest/USD");
+            if ($response->ok()) {
+                return response()->json($response->json());
+            }
+            return response()->json(['error' => 'Unable to fetch rates'], $response->status());
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $countries=Country::all();
+        $countries=Country::paginate(10);
         return view('admin.country.country',compact('countries'));
     }
 

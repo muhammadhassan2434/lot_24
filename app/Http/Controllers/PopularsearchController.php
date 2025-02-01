@@ -13,7 +13,7 @@ class PopularsearchController extends Controller
      */
     public function index()
     {
-        $searches = Popularsearch::all();
+        $searches = Popularsearch::paginate(10);
         return view('admin.PopularSearch.searchlist', compact('searches'));
     }
 

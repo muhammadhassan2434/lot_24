@@ -35,7 +35,7 @@
         <tbody>
             @foreach($brands as $brand)
                 <tr>
-                    <td>{{ $brand->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td> @if($brand->image)
                         <img src="{{ asset('uploads/' . $brand->image) }}" alt="{{ $brand->name }}" width="100" height="70">
                     @else
@@ -58,6 +58,9 @@
             @endforeach
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        {{ $brands->links() }}
+    </div>
 </div>
 
 

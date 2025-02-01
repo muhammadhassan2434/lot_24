@@ -14,7 +14,7 @@ class ContactController extends Controller
      */
     public function index()
     {
-        $contacts = Contact::all();
+        $contacts = Contact::orderBy('id', 'desc')->paginate(10);
         return view('admin.Contact.contactlist', compact('contacts'));
 
     }
@@ -99,7 +99,7 @@ class ContactController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'massage' => 'required',
+            'message' => 'required',
         ]);
 
         if($validator->fails()){
@@ -110,8 +110,8 @@ class ContactController extends Controller
         $contact = new Contact();
         $contact->name = $request->name;
         $contact->email = $request->email;
-        $contact->message = $request->message;
-        $contact->status = $request->unread;
+        $contact->massage = $request->message;
+        $contact->status = 'unread';
         $contact->save();
 
         return response()->json([
@@ -119,4 +119,24 @@ class ContactController extends Controller
             'message' => 'Contact message stored successfully',
         ]);
     }
+
+    public function reply(Request $request)
+{
+    $request->validate([
+        'contact_id' => 'required|exists:contacts,id',
+        'message' => 'required|string|max:1000',
+    ]);
+
+    $contact = Contact::findOrFail($request->contact_id);
+
+    // Send email to the user
+    try {
+        dispatch(new \App\Jobs\SendReplyEmailJob($contact->email, $request->message));
+        return response()->json(['status' => true, 'message' => 'Reply sent successfully!']);
+    } catch (\Exception $e) {
+        return response()->json(['status' => false, 'message' => 'Failed to send email.']);
+    }
+}
+
+
 }

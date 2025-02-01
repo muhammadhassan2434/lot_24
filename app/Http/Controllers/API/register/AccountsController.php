@@ -8,6 +8,10 @@ use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Http\Controllers\Controller;
 use App\Jobs\AccontCreateJob;
+use App\Jobs\DeleteAccountJob;
+use App\Jobs\NotifySubscriptionEndJob;
+use App\Models\Coupon;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -20,17 +24,14 @@ class AccountsController extends Controller
      */
     public function index()
     {
-        $accounts = Account::all();
+        $accounts = Account::orderBy('id', 'desc')->paginate(10);
         return view('admin.Accounts.accountslist', compact('accounts'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        
-    }
+    public function store(Request $request) {}
 
     /**
      * Display the specified resource.
@@ -106,8 +107,8 @@ class AccountsController extends Controller
 
 
 
-    public function storeAccounts(Request $request) {
-    // Validate the request data
+    public function storeAccounts(Request $request)
+{
     $validated = Validator::make($request->all(), [
         'name' => 'required|string|max:255',
         'surname' => 'required|string|max:255',
@@ -118,6 +119,7 @@ class AccountsController extends Controller
         'country' => 'required|string',
         'role' => 'required|in:buyer,seller',
         'subscription_id' => 'required',
+        'coupon_code' => 'nullable',
     ]);
 
     if ($validated->fails()) {
@@ -128,7 +130,50 @@ class AccountsController extends Controller
         ], 400);
     }
 
-    // Create the Account
+    $coupon_code = $request->coupon_code;
+    $coupon_detail = null;
+
+    if ($coupon_code) {
+        $coupon_detail = Coupon::where('code', $coupon_code)->first();
+
+        if (!$coupon_detail) {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'The Coupon is Invalid',
+            ], 400);
+        }
+
+        if ($coupon_detail->status !== 'active') {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'The Coupon is Blocked',
+            ], 400);
+        }
+
+        if ($coupon_detail->expiry_date <= now()) {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'The Coupon is Expired',
+            ], 400);
+        }
+    }
+
+    $subscription_detail = Subscription::where('id', $request->subscription_id)->first();
+
+    if (!$subscription_detail) {
+        return response()->json([
+            'status' => 'false',
+            'message' => 'The Subscription is Invalid',
+        ], 400);
+    }
+
+    $plan_name = $subscription_detail->plan_name;
+    $subscription_price = $subscription_detail->Discount_Price;
+
+    // Handle cases where no coupon is provided
+    $coupon_discount = $coupon_detail->discount ?? 0;
+    $finalprice = $subscription_price - $coupon_discount;
+
     $account = Account::create([
         'name' => $request->name,
         'surname' => $request->surname,
@@ -139,35 +184,52 @@ class AccountsController extends Controller
         'country' => $request->country,
         'role' => $request->role,
         'subscription_id' => $request->subscription_id,
+        'coupon_id' => $coupon_detail->id ?? null,
     ]);
 
-    // Check if invoice is required (based on the invoice checkbox)
-    $invoice = null;
-    if ($request->invoice) {
-        // Create the Invoice only if invoice is required
-        $invoice = Invoice::create([
-            'account_id' => $account->id,
-            'company' => $request->company_name ?? null,
-            'eu_tax_number' => $request->tax_number ?? null,
-            'street_unit' => $request->street_address ?? null,
-            'postal_code' => $request->postal_code ?? null,
-            'city' => $request->city ?? null,
-        ]);
-    }
+    $accountId = $account->id;
+    $invoice = Invoice::create([
+        'account_id' => $accountId,
+        'company' => $request->company_name,
+        'eu_tax_number' => $request->tax_number,
+        'street_unit' => $request->street_address,
+        'postal_code' => $request->postal_code,
+        'city' => $request->city,
+    ]);
 
-    // Dispatch the account creation job
-    $email = $request->email;
-    AccontCreateJob::dispatch($email);
+    if ($account) {
+        dispatch(new AccontCreateJob($account->email));
+
+        $subscriptionEndDate = now()->addMonths(12);
+        $notificationDate = $subscriptionEndDate->copy()->subDays(10);
+
+        // Schedule a notification email 10 days before subscription end
+        dispatch(new NotifySubscriptionEndJob(
+            $account->email,
+            $account->name,
+            $subscriptionEndDate->format('Y-m-d')
+        ))->delay($notificationDate);
+
+        // Schedule account deletion after subscription ends
+        dispatch(new DeleteAccountJob($account->id))
+            ->delay($subscriptionEndDate);
+    }
 
     return response()->json([
         'status' => true,
         'message' => 'Account created successfully',
         'account' => $account,
-        'invoice' => $invoice,  // Return the invoice data only if it was created
+        'subscription_name' => $plan_name,
+        'subscription_price' => $subscription_price,
+        'coupon_price' => $coupon_discount,
+        'discount_price' => $finalprice,
+        'Invoice' => $invoice,
     ], 201);
 }
 
-    public function storeInvoice(Request $request){
+
+    public function storeInvoice(Request $request)
+    {
         $validated = Validator::make($request->all(), [
             'account_id' => 'required|exists:accounts,id',
             'company' => 'required|string',
@@ -202,94 +264,106 @@ class AccountsController extends Controller
     }
 
 
-    
+
     public function login(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    if ($validator->fails()) {
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Failed',
+                'error' => $validator->errors()->all()
+            ], 422);
+        }
+
+        $account = Account::where('email', $request->email)->first();
+
+        if (!$account || !Hash::check($request->password, $account->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        // Check if the role is "buyer"
+        if ($account->role !== 'buyer') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Access denied. Only buyers can log in.'
+            ], 403);
+        }
+        if (Payment::where('account_id', $account->id)->first()->payment_status !== 'succeeded') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Payment failed. Access denied.'
+            ], 403);
+        }
+
         return response()->json([
-            'status' => false,
-            'message' => 'Validation Failed',
-            'error' => $validator->errors()->all()
-        ], 422);
+            'status' => true,
+            'message' => 'Login successful',
+            'account' => $account,
+            'token' => $account->createToken('API Token')->plainTextToken
+        ], 200);
     }
 
-    $account = Account::where('email', $request->email)->first();
+    public function sellerLogin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    if (!$account || !Hash::check($request->password, $account->password)) {
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Failed',
+                'error' => $validator->errors()->all()
+            ], 422);
+        }
+
+        $account = Account::where('email', $request->email)->first();
+
+        if (!$account || !Hash::check($request->password, $account->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        // Check if the role is "seller"
+        if ($account->role !== 'seller') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Access denied. Only sellers can log in.'
+            ], 403);
+        }
+        if (Payment::where('account_id', $account->id)->first()->payment_status !== 'succeeded') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Payment failed. Access denied.'
+            ], 403);
+        }
+
         return response()->json([
-            'status' => false,
-            'message' => 'Invalid credentials'
-        ], 401);
+            'status' => true,
+            'message' => 'Login successful',
+            'account' => $account,
+            'token' => $account->createToken('API Token')->plainTextToken
+        ], 200);
+        // ->withCookie(cookie('token', '1', 15))
+        // ->sameSite('None')
+        // ->secure(true); // Set to true if you're using https
     }
+    /******  4bf2edd3-07e1-4013-a075-b3b2ef3a3415  *******/
 
-    // Check if the role is "buyer"
-    if ($account->role !== 'buyer') {
-        return response()->json([
-            'status' => false,
-            'message' => 'Access denied. Only buyers can log in.'
-        ], 403);
-    }
 
-    return response()->json([
-        'status' => true,
-        'message' => 'Login successful',
-        'account' => $account,
-        'token' => $account->createToken('API Token')->plainTextToken
-    ], 200);
-}
 
-public function sellerLogin(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Validation Failed',
-            'error' => $validator->errors()->all()
-        ], 422);
-    }
-
-    $account = Account::where('email', $request->email)->first();
-
-    if (!$account || !Hash::check($request->password, $account->password)) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Invalid credentials'
-        ], 401);
-    }
-
-    // Check if the role is "seller"
-    if ($account->role !== 'seller') {
-        return response()->json([
-            'status' => false,
-            'message' => 'Access denied. Only sellers can log in.'
-        ], 403);
-    }
-
-    return response()->json([
-        'status' => true,
-        'message' => 'Login successful',
-        'account' => $account,
-        'token' => $account->createToken('API Token')->plainTextToken
-    ], 200);
-    // ->withCookie(cookie('token', '1', 15))
-    // ->sameSite('None')
-    // ->secure(true); // Set to true if you're using https
-}
-/******  4bf2edd3-07e1-4013-a075-b3b2ef3a3415  *******/
-
-    
-
-public function getSellers()
+    public function getSellers()
     {
         $sellers = Account::where('role', 'seller')->get();
 
@@ -325,22 +399,31 @@ public function getSellers()
         ], 200);
     }
 
-    public function authInfo(){
-         // Retrieve authenticated account
-         $account = Auth::user();
+    public function authInfo()
+    {
+        // Retrieve authenticated account
+        $account = Auth::user();
 
-         if ($account) {
-             return response()->json([
-                 'success' => true,
-                 'data' => $account,
-                 'message' => 'Account data retrieved successfully',
-             ], 200);
-         }
- 
-         return response()->json([
-             'success' => false,
-             'message' => 'Unauthorized',
-         ], 401);
+        if ($account) {
+            return response()->json([
+                'success' => true,
+                'data' => $account,
+                'message' => 'Account data retrieved successfully',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized',
+        ], 401);
     }
 
+
+    public function couponusage()
+    {
+        $accounts = Account::with(['coupon.influencer'])
+            ->whereNotNull('coupon_id')
+            ->orderBy('id', 'desc')->paginate(10);
+        return view('admin.couponusage.couponusageslist', compact('accounts'));
+    }
 }

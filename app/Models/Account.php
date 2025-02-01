@@ -21,6 +21,7 @@ class Account extends Authenticatable
         'country',
         'role',
         'subscription_id',
+        'coupon_code',
     ];
 
     // Hide sensitive fields in JSON responses
@@ -43,5 +44,8 @@ class Account extends Authenticatable
 public function messages() {
     return $this->hasMany(Message::class, 'sender_id');
 }
-
+public function coupon()
+{
+    return $this->belongsTo(Coupon::class);
+}
 }

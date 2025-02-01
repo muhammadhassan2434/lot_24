@@ -35,7 +35,7 @@
         <tbody>
             @foreach($categories as $category)
                 <tr>
-                    <td>{{ $category->id }}</td>
+                    <td>{{ $loop->iteration}}</td>
                     <td> @if($category->image)
                         <img src="{{ asset('uploads/' . $category->image) }}" alt="{{ $category->name }}" width="100" height="70">
                     @else
@@ -57,6 +57,9 @@
             @endforeach
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        {{ $categories->links('vendor.pagination.bootstrap-4') }}
+    </div>
 </div>
 
 

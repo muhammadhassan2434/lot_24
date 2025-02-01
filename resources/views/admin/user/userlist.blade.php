@@ -34,7 +34,7 @@
         <tbody>
             @foreach($users as $user)
                 <tr>
-                    <td>{{ $user->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $user->name}}</td>
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->role }}</td>
@@ -52,6 +52,9 @@
             @endforeach
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        {{ $users->links() }}
+    </div>
 </div>
 
 

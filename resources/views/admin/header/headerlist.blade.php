@@ -33,7 +33,7 @@
         <tbody>
             @foreach($header as $header)
                 <tr>
-                    <td>{{ $header->id }}</td>
+                    <td>{{$loop->iteration }}</td>
                     <td> @if($header->icon)
                         <img src="{{ asset('uploads/' . $header->icon) }}" alt="" width="100" height="70">
                     @else
@@ -54,6 +54,7 @@
             @endforeach
         </tbody>
     </table>
+
 </div>
 
 

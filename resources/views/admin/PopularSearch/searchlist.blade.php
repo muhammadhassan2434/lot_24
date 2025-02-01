@@ -32,7 +32,7 @@
         <tbody>
             @foreach($searches as $search)
                 <tr>
-                    <td>{{ $search->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $search->search }}</td>
 
 
@@ -48,6 +48,9 @@
             @endforeach
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        {{ $searches->links() }}
+    </div>
 </div>
 
 

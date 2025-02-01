@@ -35,7 +35,7 @@
         <tbody>
             @foreach($topbars as $topbar)
                 <tr>
-                    <td>{{ $topbar->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $topbar->title }}</td>
                     <td>{{ $topbar->slug }}</td>
                     <td>{{ $topbar->description }}</td>
@@ -53,6 +53,7 @@
             @endforeach
         </tbody>
     </table>
+
 </div>
 
 

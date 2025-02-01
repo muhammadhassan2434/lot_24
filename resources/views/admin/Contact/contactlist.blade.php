@@ -21,7 +21,8 @@
 
 
     <!-- Categories List -->
-    <table class="table table-bordered overflow-scroll">
+
+    <table class="table table-bordered overflow-auto">
         <thead>
             <tr>
                 <th>ID</th>
@@ -36,11 +37,12 @@
         <tbody>
             @foreach($contacts as $contact)
                 <tr>
-                    <td>{{ $contact->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $contact->name }}</td>
                     <td>{{ $contact->email }}</td>
                     <td>{{ $contact->massage}}</td>
-                    
+
+
                     <td>
                         <span class="badge badge-{{ $contact->status === 'unread' ? 'danger' : 'success' }}">
                             {{ ucfirst($contact->status) }}
@@ -50,7 +52,10 @@
                         <button class="btn btn-primary view-contact" data-id="{{ $contact->id }}" data-url="{{ route('contact.show', $contact->id) }}">
                             View
                         </button>
-                        <button class="btn btn-dark">Reply</button>
+                        <button class="btn btn-dark reply-contact" data-id="{{ $contact->id }}" data-email="{{ $contact->email }}" data-bs-toggle="modal" data-bs-target="#replyModal">
+                            Reply
+                        </button>
+                        
 
                     </td>
                     <td>
@@ -65,8 +70,37 @@
             @endforeach
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        {{ $contacts->links() }}
+    </div>
 </div>
 
+
+<!-- Reply Modal -->
+<div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="replyForm">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="replyModalLabel">Reply to User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="contactId" name="contact_id">
+                    <div class="mb-3">
+                        <label for="replyMessage" class="form-label">Message</label>
+                        <textarea class="form-control" id="replyMessage" name="message" rows="5" placeholder="Write your message here..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @endsection
 @section('panel.js')
@@ -103,4 +137,37 @@
 });
 
 </script>
+<script>
+    $(document).ready(function () {
+        $('.reply-contact').click(function () {
+            let contactId = $(this).data('id');
+            let contactEmail = $(this).data('email');
+            $('#contactId').val(contactId);
+        });
+    
+        $('#replyForm').submit(function (e) {
+            e.preventDefault();
+    
+            let formData = $(this).serialize();
+    
+            $.ajax({
+                url: '{{ route("contact.reply") }}', // Update with the correct route
+                method: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.status) {
+                        alert('Reply sent successfully!');
+                        $('#replyModal').modal('hide');
+                    } else {
+                        alert('Failed to send reply: ' + response.message);
+                    }
+                },
+                error: function (xhr) {
+                    alert('An error occurred: ' + xhr.responseText);
+                },
+            });
+        });
+    });
+    </script>
+    
 @endsection

@@ -36,7 +36,7 @@
         <tbody>
             @foreach($subscription as $subscription)
                 <tr>
-                    <td>{{ $subscription->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $subscription->plan_name }}</td>
                     <td>{{ $subscription->Actual_Price}}</td>
                     <td>{{ $subscription->Discount_Price}}</td>
@@ -55,6 +55,7 @@
             @endforeach
         </tbody>
     </table>
+
 </div>
 
 

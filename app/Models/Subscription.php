@@ -21,4 +21,8 @@ class Subscription extends Model
     {
         return $this->hasMany(Account::class, 'subscription_id');
     }
+    public function coupons()
+{
+    return $this->hasMany(Coupon::class);
+}
 }

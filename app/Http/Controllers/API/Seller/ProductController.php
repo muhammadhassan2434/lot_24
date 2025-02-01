@@ -380,7 +380,7 @@ class ProductController extends Controller
     }
     public function showproducts()
     {
-        $products = Product::with('images', 'category')->get();
+        $products = Product::with('images', 'category')->paginate(10);
         return view('admin.product.productlist', compact('products'));
     }
     public function updateDisplayTag(Request $request)

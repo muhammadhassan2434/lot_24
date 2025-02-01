@@ -37,7 +37,7 @@
         <tbody>
             @foreach($accounts as $account)
                 <tr>
-                    <td>{{ $account->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $account->role }}</td>
                     <td>{{ $account->name }}</td>
                     <td>{{ $account->surname }}</td>
@@ -56,6 +56,9 @@
             @endforeach
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        {{ $accounts->links() }}
+    </div>
 </div>
 
 
